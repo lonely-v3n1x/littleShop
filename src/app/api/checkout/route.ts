@@ -6,6 +6,8 @@ import {
   findBundle,
   JehucalError,
 } from "@/features/data/catalogue";
+import { isIpRateLimited, isPhoneRateLimited } from "@/features/rate-limit/checkout";
+import { recordOrderCreated } from "@/features/orders/store";
 
 export const dynamic = "force-dynamic";
 
@@ -22,27 +24,12 @@ const MAX_BODY_BYTES = 4_096;
  *
  * No API key exists to leak: Jehucal's public storefront checkout is anonymous
  * and attributes the sale by store URL + package id.
+ *
+ * Rate limiting lives in features/rate-limit/checkout.ts (Workers Rate
+ * Limiting binding, memory fallback off-Workers). Every created order is
+ * logged to D1 with its Paystack reference before the browser redirects, so
+ * a drop before the return page still leaves a record.
  */
-
-const rateBuckets = new Map<string, { count: number; resetAt: number }>();
-const RATE_WINDOW_MS = 60_000;
-const RATE_MAX = 6;
-
-function isRateLimited(key: string): boolean {
-  const now = Date.now();
-  if (rateBuckets.size > 500) {
-    for (const [bucketKey, bucket] of rateBuckets) {
-      if (bucket.resetAt <= now) rateBuckets.delete(bucketKey);
-    }
-  }
-  const bucket = rateBuckets.get(key);
-  if (!bucket || bucket.resetAt <= now) {
-    rateBuckets.set(key, { count: 1, resetAt: now + RATE_WINDOW_MS });
-    return false;
-  }
-  bucket.count += 1;
-  return bucket.count > RATE_MAX;
-}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -61,6 +48,9 @@ function clientKey(request: Request): string {
 /**
  * Behind Cloudflare/OpenNext the request URL Next sees can be an internal
  * origin, so compare against the host the browser actually addressed.
+ * Exception: local dev (`wrangler dev`, `next dev`) — wrangler sets
+ * x-forwarded-proto=https even for plain-HTTP loopback requests, so for
+ * loopback hosts trust the request URL's own protocol instead.
  */
 function requestOrigin(request: Request): string {
   const url = new URL(request.url);
@@ -68,9 +58,11 @@ function requestOrigin(request: Request): string {
     request.headers.get("x-forwarded-host")?.split(",")[0]?.trim() ??
     request.headers.get("host");
   if (!host) return url.origin;
-  const proto =
-    request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim() ||
-    url.protocol.replace(":", "");
+  const isLoopback = /^(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/.test(host);
+  const proto = isLoopback
+    ? url.protocol.replace(":", "")
+    : request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim() ||
+      url.protocol.replace(":", "");
   return `${proto}://${host}`;
 }
 
@@ -90,7 +82,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Cross-origin checkout is not allowed." }, { status: 403 });
   }
 
-  if (isRateLimited(clientKey(request))) {
+  if (await isIpRateLimited(clientKey(request))) {
     return NextResponse.json(
       { error: "Too many attempts. Wait a minute and try again." },
       { status: 429 },
@@ -122,6 +114,13 @@ export async function POST(request: Request) {
     );
   }
 
+  if (await isPhoneRateLimited(phone)) {
+    return NextResponse.json(
+      { error: "Too many checkouts for this number. Wait a minute and try again." },
+      { status: 429 },
+    );
+  }
+
   try {
     const catalogue = await fetchCatalogue();
     const bundle = findBundle(catalogue, bundleId);
@@ -138,6 +137,17 @@ export async function POST(request: Request) {
       email,
       phone,
       callbackUrl: new URL(CHECKOUT_RETURN_PATH, requestOrigin(request)).toString(),
+    });
+
+    // Log the order + Paystack reference before the browser leaves, so a
+    // customer who drops before the return page is still recorded. Fail-soft:
+    // a D1 problem must never cost a sale.
+    await recordOrderCreated({
+      reference: session.reference,
+      bundle,
+      phone,
+      email,
+      authorizationUrl: session.authorizationUrl,
     });
 
     return NextResponse.json({

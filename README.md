@@ -30,6 +30,35 @@ checkout happens in blink's own UI, while the sale is created on the owner's Jeh
 saved list and each bundle is paid for separately. Only `available: true` packages are listed; if the
 store has no priced packages the site shows an empty state and links to the storefront.
 
+## Resilience (Cloudflare)
+
+- **Rate limiting** — checkout uses the Workers Rate Limiting API (`[[ratelimits]]` in
+  `wrangler.toml`): a coarse per-IP flood guard plus a per-recipient phone limit. Counts persist
+  across isolates; off-Workers an in-memory fallback approximates them.
+- **Catalogue cache** — stale-while-revalidate on the Workers Cache API: fresh for 60 s, then stale
+  copies are served while a background refresh runs (up to 1 h). An upstream outage never blanks the
+  shop while a usable stale copy exists.
+- **Order log (D1)** — every checkout records the order + Paystack reference in `orders` /
+  `order_events` *before* the browser redirects, so a customer who drops before the return page is
+  still recorded. The return page's reverify and (optionally) Paystack webhooks update the same rows.
+  Without the D1 binding the log is a graceful no-op.
+
+### Enabling the D1 order log
+
+```bash
+npx wrangler d1 create littleshop-db          # 1. create the database
+# 2. paste the printed database_id into wrangler.toml and uncomment [[d1_databases]]
+npx wrangler d1 migrations apply littleshop-db --remote   # 3. create tables
+npm run deploy
+```
+
+### Paystack webhooks (optional)
+
+`POST /api/webhooks/paystack` verifies Paystack's HMAC-SHA512 signature and marks orders
+paid/failed. Paystack delivers webhooks to the merchant of record (Jehucal's account), so this stays
+disabled (503) until the owner sets the secret: `npx wrangler secret put PAYSTACK_WEBHOOK_SECRET`.
+Until then, confirmation happens via reverify on the return page, which writes to the same log.
+
 ## Stack
 
 - Next.js (App Router, TypeScript)
@@ -53,6 +82,7 @@ catalogue or checkout.
 | Variable | Required | Purpose |
 |---|---|---|
 | `JEHUCAL_API_BASE` | no | Override the Jehucal API base (default `https://backend.jehucale-business.com`). |
+| `PAYSTACK_WEBHOOK_SECRET` | no | Enables `/api/webhooks/paystack` (HMAC-SHA512 verification). Set via `wrangler secret put` on Cloudflare. |
 
 There is **no payment secret** to configure: Jehucal's public storefront checkout is anonymous and
 attributes the sale by store URL + package id.

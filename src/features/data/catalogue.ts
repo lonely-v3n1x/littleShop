@@ -1,5 +1,6 @@
 import type { DataBundle, NetworkId } from "@/types";
 import { JEHUCAL_STORE_SLUG } from "@/lib/constants";
+import { waitUntil } from "@/features/cloudflare/bindings";
 import { getNetworkById } from "./networks";
 
 /**
@@ -16,7 +17,6 @@ const API_BASE =
   process.env.JEHUCAL_API_BASE?.replace(/\/+$/, "") ??
   "https://backend.jehucale-business.com";
 
-const CACHE_TTL_MS = 60_000;
 const REQUEST_TIMEOUT_MS = 12_000;
 
 const NETWORK_MAP: Record<string, NetworkId> = {
@@ -81,7 +81,6 @@ function dataSizeLabel(sizeGb: number): string {
 
 function mapPackage(raw: RawPackage, checkedAt: string): DataBundle | null {
   if (raw.available !== true) return null;
-
   const id = asString(raw.id);
   const networkId = typeof raw.network === "string" ? NETWORK_MAP[raw.network] : undefined;
   const size = asFiniteNumber(raw.size);
@@ -117,15 +116,86 @@ function parseCatalogueEnvelope(json: unknown): Record<string, unknown> {
   return json.payload;
 }
 
-let catalogueCache: { at: number; value: Catalogue } | null = null;
+/**
+ * Catalogue cache — stale-while-revalidate on the Workers Cache API.
+ *
+ * The previous in-memory memo died with each isolate, so every cold isolate
+ * re-fetched upstream. A Cache API entry is shared across isolates in a
+ * location: fresh for FRESH_MS, then served stale while a background refresh
+ * runs (up to MAX_STALE_MS). An upstream failure never blanks the shop while
+ * a usable stale copy exists. Outside Workers (next dev/start, tests) the
+ * same logic runs against a module-level memo.
+ */
+const FRESH_MS = 60_000;
+const MAX_STALE_MS = 60 * 60_000;
+const CACHE_KEY_URL = `https://blink-cache.internal/catalogue/${encodeURIComponent(JEHUCAL_STORE_SLUG)}`;
 
-/** Fetch (and briefly memoise) the live storefront catalogue. */
-export async function fetchCatalogue(options?: { fresh?: boolean }): Promise<Catalogue> {
-  const now = Date.now();
-  if (!options?.fresh && catalogueCache && now - catalogueCache.at < CACHE_TTL_MS) {
-    return catalogueCache.value;
+function cacheKey(): Request {
+  return new Request(CACHE_KEY_URL);
+}
+
+interface CacheEnvelope {
+  storedAt: number;
+  catalogue: Catalogue;
+}
+
+let memoryCache: CacheEnvelope | null = null;
+let revalidating: Promise<Catalogue> | null = null;
+
+function workerCache(): Cache | null {
+  if (typeof caches === "undefined") return null;
+  // `caches.default` is the Workers Cache API; the DOM lib's CacheStorage
+  // type does not declare it, hence the structural cast.
+  return (caches as unknown as { default?: Cache }).default ?? null;
+}
+
+function isEnvelope(value: unknown): value is CacheEnvelope {
+  if (typeof value !== "object" || value === null) return false;
+  const envelope = value as Partial<CacheEnvelope>;
+  return (
+    typeof envelope.storedAt === "number" &&
+    typeof envelope.catalogue === "object" &&
+    envelope.catalogue !== null &&
+    Array.isArray(envelope.catalogue.bundles)
+  );
+}
+
+async function readCache(): Promise<CacheEnvelope | null> {
+  const cache = workerCache();
+  if (!cache) return memoryCache;
+  try {
+    const hit = await cache.match(CACHE_KEY_URL);
+    if (!hit) return null;
+    const parsed: unknown = await hit.json();
+    return isEnvelope(parsed) ? parsed : null;
+  } catch {
+    return null;
   }
+}
 
+async function writeCache(envelope: CacheEnvelope): Promise<void> {
+  const cache = workerCache();
+  if (!cache) {
+    memoryCache = envelope;
+    return;
+  }
+  try {
+    await cache.put(
+      cacheKey(),
+      new Response(JSON.stringify(envelope), {
+        headers: {
+          "Content-Type": "application/json",
+          "Cache-Control": `max-age=${FRESH_MS / 1000}, stale-while-revalidate=${MAX_STALE_MS / 1000}`,
+        },
+      }),
+    );
+  } catch (error) {
+    console.warn("[catalogue] cache write failed", error);
+  }
+}
+
+/** Fetch the live catalogue from the storefront (no caching). */
+async function fetchCatalogueUpstream(): Promise<Catalogue> {
   const url = `${API_BASE}/storefront/public/${encodeURIComponent(JEHUCAL_STORE_SLUG)}`;
 
   let response: Response;
@@ -164,7 +234,7 @@ export async function fetchCatalogue(options?: { fresh?: boolean }): Promise<Cat
         NETWORK_ORDER[a.networkId] - NETWORK_ORDER[b.networkId] || a.dataMb - b.dataMb,
     );
 
-  const value: Catalogue = {
+  return {
     store: {
       storeUrl: asString(storeRaw.storeUrl) ?? JEHUCAL_STORE_SLUG,
       whatsapp: asString(storeRaw.storeWhatsappNumber),
@@ -174,9 +244,52 @@ export async function fetchCatalogue(options?: { fresh?: boolean }): Promise<Cat
     bundles,
     fetchedAt: checkedAt,
   };
+}
 
-  catalogueCache = { at: now, value };
-  return value;
+function revalidateInBackground(): void {
+  if (revalidating) return;
+  const task = fetchCatalogueUpstream()
+    .then(async (value) => {
+      await writeCache({ storedAt: Date.now(), catalogue: value });
+      return value;
+    })
+    .catch((error: unknown) => {
+      console.warn("[catalogue] background revalidate failed; keeping stale copy", error);
+      throw error;
+    })
+    .finally(() => {
+      revalidating = null;
+    });
+  revalidating = task;
+  waitUntil(task.catch(() => undefined));
+}
+
+/** Fetch the live storefront catalogue with stale-while-revalidate caching. */
+export async function fetchCatalogue(options?: { fresh?: boolean }): Promise<Catalogue> {
+  if (!options?.fresh) {
+    const cached = await readCache();
+    if (cached) {
+      const age = Date.now() - cached.storedAt;
+      if (age < FRESH_MS) return cached.catalogue;
+      if (age < MAX_STALE_MS) {
+        revalidateInBackground();
+        return cached.catalogue;
+      }
+    }
+  }
+
+  try {
+    const value = await fetchCatalogueUpstream();
+    await writeCache({ storedAt: Date.now(), catalogue: value });
+    return value;
+  } catch (error) {
+    const cached = await readCache();
+    if (cached && Date.now() - cached.storedAt < MAX_STALE_MS) {
+      console.warn("[catalogue] upstream failed; serving stale copy", error);
+      return cached.catalogue;
+    }
+    throw error;
+  }
 }
 
 export function findBundle(catalogue: Catalogue, bundleId: string): DataBundle | undefined {
@@ -203,7 +316,6 @@ export async function createCheckoutSession(input: {
   callbackUrl: string;
 }): Promise<CheckoutSession> {
   const url = `${API_BASE}/storefront/checkout`;
-
   let response: Response;
   try {
     response = await fetch(url, {
@@ -255,7 +367,6 @@ export interface ReverifyResult {
 /** Ask Jehucal to re-check the Paystack reference after the customer returns. */
 export async function reverifyOrder(reference: string): Promise<ReverifyResult> {
   const url = `${API_BASE}/storefront/orders/reverify`;
-
   let response: Response;
   try {
     response = await fetch(url, {

@@ -1,0 +1,108 @@
+{
+  "name": "APInex Provider",
+  "providerId": "apinex",
+  "apiEndpoint": "https://api.apinex.bond/v1/chat/completions",
+  "apiKeyEnvVar": "APINEX_API_KEY",
+  "models": [
+    {
+      "id": "free/gpt-6-luna",
+      "name": "GPT 6 Luna",
+      "tier": "free"
+    },
+    {
+      "id": "gpt-6-astra",
+      "name": "GPT 6 Astra",
+      "tier": "standard"
+    },
+    {
+      "id": "gpt-6.1-sol",
+      "name": "GPT 6.1 Sol",
+      "tier": "standard"
+    },
+    {
+      "id": "gpt-6.1-terra",
+      "name": "GPT 6.1 Terra",
+      "tier": "standard"
+    },
+    {
+      "id": "claude-opus-5.5",
+      "name": "Claude Opus 5.5",
+      "tier": "standard"
+    },
+    {
+      "id": "claude-sonnet-5.5",
+      "name": "Claude Sonnet 5.5",
+      "tier": "standard"
+    },
+    {
+      "id": "free/claude-opus-4.6",
+      "name": "Claude Opus 4.6",
+      "tier": "free"
+    },
+    {
+      "id": "free/claude-sonnet-4.6",
+      "name": "Claude Sonnet 4.6",
+      "tier": "free"
+    },
+    {
+      "id": "deepseek-v4-flash",
+      "name": "DeepSeek V4 Flash",
+      "tier": "standard"
+    },
+    {
+      "id": "deepseek-v4-pro",
+      "name": "DeepSeek V4 Pro",
+      "tier": "standard"
+    },
+    {
+      "id": "free/deepseek-v4-flash-0731",
+      "name": "DeepSeek V4 Flash 0731",
+      "tier": "free"
+    },
+    {
+      "id": "free/deepseek-v4-pro-0813",
+      "name": "DeepSeek V4 Pro 0813",
+      "tier": "free"
+    },
+    {
+      "id": "gemini-3.8-flash",
+      "name": "Gemini 3.8 Flash",
+      "tier": "standard"
+    },
+    {
+      "id": "free/gemini-3.8-flash",
+      "name": "Gemini 3.8 Flash",
+      "tier": "free"
+    },
+    {
+      "id": "free/gemini-3.1-pro",
+      "name": "Gemini 3.1 Pro",
+      "tier": "free"
+    },
+    {
+      "id": "free/hy4",
+      "name": "HY4",
+      "tier": "free"
+    },
+    {
+      "id": "free/hy4-flash",
+      "name": "HY4 Flash",
+      "tier": "free"
+    },
+    {
+      "id": "grok-4.7",
+      "name": "Grok 4.7",
+      "tier": "standard"
+    }
+  ],
+  "authFormat": {
+    "header": "Authorization",
+    "prefix": "Bearer "
+  },
+  "requestFormat": {
+    "messagesField": "messages",
+    "modelField": "model",
+    "roleField": "role",
+    "contentField": "content"
+  }
+}

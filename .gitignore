@@ -1,0 +1,15 @@
+node_modules
+.next
+.open-next
+.wrangler
+.env
+.env.local
+*.tsbuildinfo
+next-env.d.ts
+.DS_Store
+
+# Local secrets (never commit)
+.dev.vars
+.dev.vars.*
+.env.*.local
+secrets/

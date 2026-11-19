@@ -26,7 +26,7 @@ export default async function Home() {
 
   return (
     <>
-      <Hero />
+      <Hero bundles={bundles} />
       <ServiceRail />
       {catalogueFailed ? (
         <section className="container py-10">

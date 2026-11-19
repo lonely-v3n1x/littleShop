@@ -1,6 +1,6 @@
 "use client";
 
-import { Bag } from "lucide-react";
+import { ShoppingBag } from "lucide-react";
 import type { DataBundle, Network } from "@/types";
 import { formatDataMb, expiryLabel } from "@/lib/data-size";
 import { formatGhs } from "@/lib/money";
@@ -11,13 +11,17 @@ export function BundleCard({
   bundle,
   network,
   onAdd,
+  added = false,
 }: {
   bundle: DataBundle;
   network?: Network;
   onAdd: (bundle: DataBundle) => void;
+  added?: boolean;
 }) {
+  const size = formatDataMb(bundle.dataMb);
+
   return (
-    <article className="product-card group">
+    <li className="product-card group">
       <div
         className="relative h-48 overflow-hidden rounded-[20px] p-6"
         style={{ backgroundColor: network?.brandColor, color: network?.textOnColor }}
@@ -41,13 +45,19 @@ export function BundleCard({
       <div className="flex items-center justify-between px-1 pb-1 pt-5">
         <div>
           <p className="text-sm text-white/45">Starting at</p>
-          <p className="mt-1 text-xl font-extrabold">{formatGhs(bundle.pricePesowas)}</p>
+          <p className="mt-1 text-xl font-extrabold">{formatGhs(bundle.pricePesewas)}</p>
         </div>
-        <button type="button" onClick={() => onAdd(bundle)} className="add-button">
-          <Bag className="h-5 w-5" aria-hidden="true" />
+        <button
+          type="button"
+          onClick={() => onAdd(bundle)}
+          aria-label={added ? `Add another ${size} bundle to cart` : `Add ${size} bundle to cart`}
+          aria-pressed={added}
+          className="add-button"
+        >
+          <ShoppingBag className="h-5 w-5" aria-hidden="true" />
           <span>Add</span>
         </button>
       </div>
-    </article>
+    </li>
   );
 }

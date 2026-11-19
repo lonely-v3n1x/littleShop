@@ -76,11 +76,9 @@ export function BundleGrid({
                   <BundleCard
                     key={bundle.id}
                     bundle={bundle}
-                    networkName={network?.name ?? ""}
-                    brandColor={network?.brandColor ?? "transparent"}
+                    network={network}
                     onAdd={onAdd}
                     added={!!addedIds[bundle.id]}
-                    index={i}
                   />
                 ))}
               </ul>

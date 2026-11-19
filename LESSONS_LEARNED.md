@@ -97,13 +97,13 @@ They were never paid. Delete them (or ignore them) before a launch.
 
 1. **Enable more packages** in the Jehucal dashboard (Store → Packages): set store prices and
    availability. Only `MTN 1GB` is live today, so the site shows one buyable bundle.
-2. **Confirm the WhatsApp number** (`233531810252`) — it is copied from the Jehucal catalogue; the
-   [OPEN] marker in `lib/constants.ts` and `pricing-strategy.md` still says the owner should confirm it
-   is the right number for customers.
+2. **Confirm the support WhatsApp number** in `lib/constants.ts` — it is copied from the
+   Jehucal catalogue; the [OPEN] marker there and in `pricing-strategy.md` still says the owner
+   should confirm it is the right number for customers.
 3. **Test a real (paid) end-to-end** once one more package is live: fill checkout → Paystack → return
    page; then verify on the Jehucal dashboard that the sale is attributed to `littleFlower`.
-4. **Wire Auth0** when credentials/tenant exist: `@auth0/nextjs-auth0` is a dependency; the plan
-   reserves `lib/auth.ts`'s `authEnabled` decision for then.
+4. **Auth is deferred.** `@auth0/nextjs-auth0` was uninstalled during cleanup (no code imported
+   it); revisit when a tenant/credentials exist.
 5. Unit tests for the phone normalizer were never added — the plan has phone cases in Phase D
    acceptance. Add a small `__tests__` dir if the team wants anything more than "it passed in the
    browser".

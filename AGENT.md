@@ -59,6 +59,7 @@ types/:    index.ts (Network, DataBundle, CartLine, Service…)
 ```bash
 npm run dev          # dev server
 npm run build        # production build (tsc + build)
+npm run lint         # ESLint (flat config, next/core-web-vitals + next/typescript)
 npx tsc --noEmit     # type check
 npm run test         # phone normaliser unit tests (scripts/test-phone.mjs)
 npx @opennextjs/cloudflare build   # Cloudflare/OpenNext bundle for wrangler deploy
@@ -76,22 +77,17 @@ npm run deploy       # cf:build + wrangler deploy
 - `pricing-strategy.md` — cost tables (§2), pricing rule + invariants (§3),
   recommended grids (§4), strategy (§6), technical findings (§7).
 - `LESSONS_LEARNED.md` — mistakes during bring-up, what was deleted as useless,
-  open items (enable AT/Telecel SKUs, live-e2e test, Auth0), commands reference.
+  open items (enable AT/Telecel SKUs, live-e2e test), commands reference.
 - `plan.md` — product plan; §1.6 documents the current checkout architecture.
 - Builds green: `npm run build`, `next start` (3215 era), `npx @opennextjs/cloudflare build`.
 
-## Updating prices (how to do it yourself or a future agent)
+## Updating prices
 
-1. Login: `POST https://backend.jehucale-business.com/auth/login`
-   `{phoneNumber: "0531810252", password: <dashboard password>}` → `jehucal.sid` cookie
-   (curl: `curl -c jar -X POST …`; the storefront's own login accepts 10-digit
-   national format, e.g. `0531810252`).
-2. `GET https://backend.jehucale-business.com/storefront/my-packages` → packages with
-   `id, size, network, type, price (pesewas), agentPrice, available`.
-3. `PUT https://backend.jehucale-business.com/storefront/prices` with
-   `{size, network, type, price (new pesewas), available}` —
-   the JSDoc on the form: price must be ≥ `cost + minAbs` (e.g. MTN 1GB floor 4.50).
-   Live changes are visible in `/storefront/public/littleFlower` within ~a minute.
+Prices and availability are managed in the Jehucal dashboard (Store → Packages):
+tick **Available** and set the **store price** (integer pesewas; the form enforces
+`price ≥ cost + minAbs`, e.g. MTN 1GB floor 4.50). Live changes are visible in
+`/storefront/public/littleFlower` within ~a minute. No credentials or login flow
+belong in this repo.
 
 ## Notes
 

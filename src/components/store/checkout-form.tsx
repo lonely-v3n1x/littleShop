@@ -102,7 +102,7 @@ export function CheckoutForm({
     if (!parsed.ok) return;
     if (!emailValid) return;
 
-    // Jehucal expects exactly the 10 national digits (e.g. 0531810252).
+    // Jehucal expects exactly the 10 national digits (e.g. 0541234567).
     const national = `0${parsed.e164.replace(/\D/g, "").slice(-9)}`;
 
     setSubmitting(true);

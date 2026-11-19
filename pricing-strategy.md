@@ -1,7 +1,7 @@
 # Ghana data-bundle pricing research - blink
 
 **Date:** 16-17 Nov 2026
-**Account:** Jehucal agent `AGT800`, store slug `littleFlower`, tier **BASE**
+**Account:** Jehucal agent store slug `littleFlower`, tier **BASE**
 **Currency:** GHS (the store UI shows the cedi symbol; written "GHS" here so the file stays ASCII-clean)
 
 > Read the confidence column. Only rows marked **HIGH** should drive prices without a re-check.
@@ -231,8 +231,8 @@ A real response from your store:
 
 ```json
 {"status":true,"statusCode":200,"message":"Store packages fetched successfully",
- "payload":{"store":{"storeUrl":"littleFlower","storeWhatsappNumber":"233531810252",
- "fullName":"Yussif Sare","agentCode":"AGT800"},
+ "payload":{"store":{"storeUrl":"littleFlower","storeWhatsappNumber":"<store WhatsApp number>",
+ "fullName":"<owner name>","agentCode":"<agent code>"},
  "packages":[{"id":"b3254946-2084-4c4b-a092-19fe9bf43b6c","size":1,"network":"MTN",
  "type":"ISHARE","price":490,"available":true}],
  "afaProducts":[],"checkoutEnabled":true}}
@@ -271,7 +271,7 @@ The same public surface that powers the Jehucal storefront includes:
 ```
 POST https://backend.jehucale-business.com/storefront/checkout
 { "storeUrl": "littleFlower", "agentPackageId": "<package uuid>",
-  "email": "you@example.com", "phone": "0531810252",
+  "email": "you@example.com", "phone": "0541234567",
   "callbackUrl": "https://<shop>/checkout/return" }
 
 201 { "status": true, "payload": { "authorization_url": "https://checkout.paystack.com/...",

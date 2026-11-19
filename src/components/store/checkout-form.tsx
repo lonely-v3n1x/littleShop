@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, Info, Lock } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Info } from "lucide-react";
 import type { DataBundle } from "@/types";
 import { formatGhs } from "@/lib/money";
 import { normaliseGhanaPhone, networkHintForE164 } from "@/lib/phone";
@@ -380,26 +380,15 @@ export function CheckoutForm({
 
       <section
         aria-labelledby="pay-title"
-        className="rounded-2xl border border-secondary/60 bg-secondary/10 p-5 sm:p-6"
+        className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6"
       >
-        <div className="flex items-start gap-3">
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-background text-foreground">
-            <Lock className="h-5 w-5" aria-hidden="true" />
-          </span>
-          <div>
-            <h2 id="pay-title" className="text-base font-semibold">
-              Pay on Paystack for Jehucal
-            </h2>
-            <p className="mt-1 text-sm leading-relaxed text-foreground/80">
-              littleShop places the order with Jehucal, our licensed data partner, and hands you to
-              Paystack&rsquo;s secure page. littleShop never asks for your MoMo PIN or card details.
-            </p>
-          </div>
-        </div>
+        <h2 id="pay-title" className="text-base font-semibold">
+          Payment
+        </h2>
 
         {error ? (
           <Alert variant="destructive" className="mt-4">
-            <AlertTitle>Payment page did not open</AlertTitle>
+            <AlertTitle>Checkout could not start</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         ) : null}
@@ -411,12 +400,9 @@ export function CheckoutForm({
             disabled={submitting}
             className="h-12 w-full rounded-full text-base"
           >
-            {submitting ? "Starting secure payment…" : "Continue to payment"}
+            {submitting ? "Starting…" : "Continue to payment"}
             <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
           </Button>
-          <p className="mt-2 text-center text-xs text-muted-foreground">
-            The order is placed in our Jehucal store, then Paystack handles payment.
-          </p>
         </div>
 
         {/* Thumb-zone CTA on phones; the same form submit, no duplicate logic. */}

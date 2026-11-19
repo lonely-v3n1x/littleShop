@@ -1,3 +1,5 @@
+"use client";
+
 import { ArrowRight, Bolt, Globe, Shield, Sparkles, Wifi } from "lucide-react";
 import type { DataBundle } from "@/types";
 import { getNetworkById } from "@/features/data/networks";
@@ -5,7 +7,7 @@ import { expiryLabel, formatDataMb } from "@/lib/data-size";
 import { DELIVERY_PROMISE } from "@/lib/constants";
 
 /**
- * FigFeva-inspired hero for the FigFeva-inspired shop.hero-art`, h-48/sm:h-[560px].
+ * Figma-inspired hero: cream/lime/purple art card with the live headline bundle.
  * Keep it structural so future stylers can restyle it.
  */
 

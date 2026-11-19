@@ -18,22 +18,22 @@ function test(name, fn) {
 console.log(`Node version: ${process.version}`);
 console.log("phone.normaliseGhanaPhone / networkHintForE164");
 
-test("normaliseGhanaPhone('0531810252') -> +233531810252", () => {
-  const result = normaliseGhanaPhone("0531810252");
+test("normaliseGhanaPhone('0541234567') -> +233541234567", () => {
+  const result = normaliseGhanaPhone("0541234567");
   assert.equal(result.ok, true);
-  assert.equal(result.e164, "+233531810252");
+  assert.equal(result.e164, "+233541234567");
 });
 
-test("normaliseGhanaPhone('+233531810252') -> +233531810252 (unchanged)", () => {
-  const result = normaliseGhanaPhone("+233531810252");
+test("normaliseGhanaPhone('+233541234567') -> +233541234567 (unchanged)", () => {
+  const result = normaliseGhanaPhone("+233541234567");
   assert.equal(result.ok, true);
-  assert.equal(result.e164, "+233531810252");
+  assert.equal(result.e164, "+233541234567");
 });
 
-test("normaliseGhanaPhone('233531810252') -> +233531810252", () => {
-  const result = normaliseGhanaPhone("233531810252");
+test("normaliseGhanaPhone('233541234567') -> +233541234567", () => {
+  const result = normaliseGhanaPhone("233541234567");
   assert.equal(result.ok, true);
-  assert.equal(result.e164, "+233531810252");
+  assert.equal(result.e164, "+233541234567");
 });
 
 test("normaliseGhanaPhone('not a number') -> ok:false with error", () => {
@@ -42,8 +42,8 @@ test("normaliseGhanaPhone('not a number') -> ok:false with error", () => {
   assert.equal(typeof result.error, "string");
 });
 
-test("networkHintForE164('+233531810252') -> 'mtn'", () => {
-  assert.equal(networkHintForE164("+233531810252"), "mtn");
+test("networkHintForE164('+233541234567') -> 'mtn'", () => {
+  assert.equal(networkHintForE164("+233541234567"), "mtn");
 });
 
 // Extra coverage for the remaining documented network hints.

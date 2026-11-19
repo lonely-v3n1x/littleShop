@@ -42,17 +42,19 @@ This block is the invariant contract. Pin it verbatim as the top of every implem
 - **No new dependencies** in v1. (See 0.7.)
 
 ## 0.2 Domain types (verbatim — the single source of truth lives in `src/types/index.ts`)
-These are the **corrected** shapes (see Appendix A, architecture + product lenses). Update the file to
-match exactly.
+Reconciled with the code (2026-11-19): naming is standardised on `pricePesewas` /
+`pricePesewasSnapshot` everywhere. The code is authoritative; if this block drifts again,
+regenerate it from `src/types/index.ts`.
 
 ```ts
 export type NetworkId = "mtn" | "telecel" | "at";
-export type ExpiryType = "non-expiry" | "daily" | "weekly" | "monthly" | "night";
+export type ExpiryType = "non-expiry" | "daily" | "weekly" | "monthly" | "night" | "60-day" | "90-day";
 
 export interface Network {
   id: NetworkId;
   name: string;          // "MTN" | "Telecel" | "AT"
   brandColor: string;    // hex — used ONLY as a dot / 2px border chip, never as bg or text
+  textOnColor: string;   // ink color on the brand strip behind the card's big number, or white
   logoText: string;      // text placeholder until logos exist
   active: boolean;
 }
@@ -60,15 +62,16 @@ export interface Network {
 // Authoritative volume in MB. Display as GB when >= 1000.
 // Money is INTEGER pesewas: 1000 === GH₵10.00. Never store cedis-as-float.
 export interface DataBundle {
-  id: string;
+  id: string;            // the Jehucal agent-package UUID sent to POST /storefront/checkout
   networkId: NetworkId;
   name: string;
   dataMb: number;
-  pricePeseWas: number;
-  expiryType: ExpiryType;   // non-expiry is the #1 reseller value prop — default to it
+  pricePesewas: number;  // integer pesewas, straight from the storefront; never a guess
+  expiryType?: ExpiryType; // optional: only set when the source states it (the live API does not)
+  packageType?: string;  // raw Jehucal package `type` (e.g. ISHARE) — support/debugging, not copy
   popular?: boolean;
   description?: string;
-  checkedAt?: string;       // ISO date the tariff was last verified (data is indicative!)
+  checkedAt?: string;    // ISO date the tariff was last verified (data is indicative!)
 }
 
 // v1 line keeps bundleId (data service only) but SNAPSHOTS name+price at add-time so a tariff
@@ -77,7 +80,8 @@ export interface CartLine {
   bundleId: string;
   quantity: number;
   nameSnapshot: string;
-  pricePeseWasSnapshot: number;
+  pricePesewasSnapshot: number;
+  dataMbSnapshot: number;
 }
 
 export type ServiceStatus = "active" | "coming-soon" | "planned";
@@ -113,7 +117,7 @@ src/
 │  └─ catalogue.ts          # live Jehucal catalogue + checkout + reverify (server-only)
 ├─ lib/
 │  ├─ utils.ts              # cn()
-│  ├─ money.ts              # formatGhs(peseWas)  — the ONLY money formatter
+│  ├─ money.ts              # formatGhs(pesewas)  — the ONLY money formatter
 │  ├─ service-icon.tsx      # icon-name -> <Lucide/> map; registry: services.ts (Phase A)
 │  └─ services.ts           # service registry (active: data; rest coming-soon)
 ├─ providers/
@@ -141,8 +145,8 @@ Rules:
 ## 0.6 Money & constants (single source)
 - `lib/money.ts`:
   ```ts
-  export function formatGhs(peseWas: number): string {
-    return `GH₵${(peseWas / 100).toFixed(2)}`;
+  export function formatGhs(pesewas: number): string {
+    return `GH₵${(pesewas / 100).toFixed(2)}`;
   }
   ```
 - `lib/constants.ts`: `export const MAX_QTY_PER_LINE = 10;`
@@ -216,7 +220,7 @@ trivial to add later without rewrites.
 ## 1.5 Scope
 **In (v1):** frontend + live Jehucal catalogue; browse → network → bundle → Buy now / cart → in-store
 checkout that creates the Jehucal order and hands off to Paystack (§1.6); responsive polished UI;
-Auth0 *structure only*; Cloudflare (OpenNext) config; service registry with coming-soon slots; this plan.
+auth deferred (no Auth0 dependency); Cloudflare (OpenNext) config; service registry with coming-soon slots; this plan.
 **Out (v1):** own payment gateway, own backend/DB, telco API/data delivery, real auth tenant, admin
 dashboard, multi-item checkout (Jehucal takes one package per payment).
 **Explicit non-goals:** multi-currency, account-gated purchase, order-history persistence,
@@ -248,7 +252,7 @@ sale itself is still created on the owner's Jehucal storefront so the commission
 - Only `available: true` packages with an integer `price` in **pesewas** are renderable. If the
   catalogue has no usable package, blink shows an empty state and links to the storefront —
   it must **never invent a price or SKU**.
-- `phone` is exactly the 10 national digits (e.g. `0531810252`). Email must be valid.
+- `phone` is exactly the 10 national digits (e.g. `0541234567`). Email must be valid.
 - `POST /storefront/orders/reverify` returns a `status` (`SUCCESS`, `FAILED`, …) plus a message; treat
   anything other than `SUCCESS` as "not confirmed yet", never as paid.
 - **Never** use `GET /storefront/orders/by-phone` — cross-tenant leak (`pricing-strategy.md` §7.3).
@@ -270,7 +274,7 @@ shows "see store" rather than guessing. Prices are **pesewas integers** end-to-e
 | # | Question | Decision |
 |---|---|---|
 | 1 | OpenNext vs next-on-pages | **OpenNext + Wrangler** (already configured). Do not add next-on-pages. |
-| 2 | Auth0 now or later | **Placeholder only** in v1; static "Sign in"; activate when a tenant exists (mind edge caveat, §3.4). |
+| 2 | Auth0 now or later | **Deferred** — `@auth0/nextjs-auth0` uninstalled (no code used it); no sign-in UI in v1; revisit when a tenant exists. |
 | 3 | Brand | Green/gold Ghana palette already in `globals.css` (AA-passing). **[ASK OWNER]** final logo/type. |
 | 4 | Full UI now or plan-first | Plan reviewed (this doc) → proceed with §3 build order. |
 | 5 | Bundle model/prices | **Corrected** to amount-led/non-expiry, pesewas, `dataMb`, `checkedAt` (§3.1). All indicative — verify pre-launch. |
@@ -304,21 +308,21 @@ edit `src/features/data/types.ts` (deleted — see as-built note); **create** `s
 **Data — the exact catalogue (indicative; set `checkedAt` to today; VERIFY before launch):**
 ```ts
 // MTN — amount-led, non-expiry (+ midnight)
-{ id: "mtn-ghs1",   networkId: "mtn", name: "GH₵1 Data",   dataMb: 41,    pricePeseWas: 100,  expiryType: "non-expiry" },
-{ id: "mtn-ghs3",   networkId: "mtn", name: "GH₵3 Data",   dataMb: 407,   pricePeseWas: 300,  expiryType: "non-expiry" },
-{ id: "mtn-ghs10",  networkId: "mtn", name: "GH₵10 Data",  dataMb: 838,   pricePeseWas: 1000, expiryType: "non-expiry", popular: true },
-{ id: "mtn-ghs50",  networkId: "mtn", name: "GH₵50 Data",  dataMb: 3560,  pricePeseWas: 5000, expiryType: "non-expiry" },
-{ id: "mtn-ghs100", networkId: "mtn", name: "GH₵100 Data", dataMb: 8000,  pricePeseWas: 10000, expiryType: "non-expiry" },
-{ id: "mtn-midnight", networkId: "mtn", name: "Midnight (GH₵3)", dataMb: 8700, pricePeseWas: 300, expiryType: "night", popular: true },
+{ id: "mtn-ghs1",   networkId: "mtn", name: "GH₵1 Data",   dataMb: 41,    pricePesewas: 100,  expiryType: "non-expiry" },
+{ id: "mtn-ghs3",   networkId: "mtn", name: "GH₵3 Data",   dataMb: 407,   pricePesewas: 300,  expiryType: "non-expiry" },
+{ id: "mtn-ghs10",  networkId: "mtn", name: "GH₵10 Data",  dataMb: 838,   pricePesewas: 1000, expiryType: "non-expiry", popular: true },
+{ id: "mtn-ghs50",  networkId: "mtn", name: "GH₵50 Data",  dataMb: 3560,  pricePesewas: 5000, expiryType: "non-expiry" },
+{ id: "mtn-ghs100", networkId: "mtn", name: "GH₵100 Data", dataMb: 8000,  pricePesewas: 10000, expiryType: "non-expiry" },
+{ id: "mtn-midnight", networkId: "mtn", name: "Midnight (GH₵3)", dataMb: 8700, pricePesewas: 300, expiryType: "night", popular: true },
 // Telecel — non-expiry grid (+ Night King)
-{ id: "tel-ghs10",  networkId: "telecel", name: "GH₵10 Data",  dataMb: 891,   pricePeseWas: 1000, expiryType: "non-expiry", popular: true },
-{ id: "tel-ghs50",  networkId: "telecel", name: "GH₵50 Data",  dataMb: 4500,  pricePeseWas: 5000, expiryType: "non-expiry" },
-{ id: "tel-ghs100", networkId: "telecel", name: "GH₵100 Data", dataMb: 10000, pricePeseWas: 10000, expiryType: "non-expiry" },
-{ id: "tel-nightking", networkId: "telecel", name: "Night King (GH₵3)", dataMb: 10000, pricePeseWas: 300, expiryType: "night", popular: true },
+{ id: "tel-ghs10",  networkId: "telecel", name: "GH₵10 Data",  dataMb: 891,   pricePesewas: 1000, expiryType: "non-expiry", popular: true },
+{ id: "tel-ghs50",  networkId: "telecel", name: "GH₵50 Data",  dataMb: 4500,  pricePesewas: 5000, expiryType: "non-expiry" },
+{ id: "tel-ghs100", networkId: "telecel", name: "GH₵100 Data", dataMb: 10000, pricePesewas: 10000, expiryType: "non-expiry" },
+{ id: "tel-nightking", networkId: "telecel", name: "Night King (GH₵3)", dataMb: 10000, pricePesewas: 300, expiryType: "night", popular: true },
 // AT — non-expiry
-{ id: "at-ghs10",   networkId: "at", name: "GH₵10 Data",  dataMb: 891,   pricePeseWas: 1000, expiryType: "non-expiry", popular: true },
-{ id: "at-ghs50",   networkId: "at", name: "GH₵50 Data",  dataMb: 4500,  pricePeseWas: 5000, expiryType: "non-expiry" },
-{ id: "at-ghs100",  networkId: "at", name: "GH₵100 Data", dataMb: 10000, pricePeseWas: 10000, expiryType: "non-expiry" },
+{ id: "at-ghs10",   networkId: "at", name: "GH₵10 Data",  dataMb: 891,   pricePesewas: 1000, expiryType: "non-expiry", popular: true },
+{ id: "at-ghs50",   networkId: "at", name: "GH₵50 Data",  dataMb: 4500,  pricePesewas: 5000, expiryType: "non-expiry" },
+{ id: "at-ghs100",  networkId: "at", name: "GH₵100 Data", dataMb: 10000, pricePesewas: 10000, expiryType: "non-expiry" },
 ```
 - Update `getBundlesByNetwork`/`getBundleById`/`getNetworkById` signatures to `NetworkId`/`string`→typed.
 - `service-icon.tsx`: exact map for the icons used in `lib/services.ts` (`Wifi, PhoneCall, ReceiptText,
@@ -365,8 +369,8 @@ const [hydrated, setHydrated] = React.useState(false);
 React.useEffect(() => { setLines(readFromStorage()); setHydrated(true); }, []);
 React.useEffect(() => { if (hydrated) writeToStorage(lines); }, [lines, hydrated]);
 ```
-- On `addItem(bundleId)`: look up the bundle once, store `nameSnapshot` + `pricePeseWasSnapshot` on the
-  new line. `subtotal` = sum of `pricePeseWasSnapshot * quantity` (pesewas). `MAX_QTY_PER_LINE` from
+- On `addItem(bundleId)`: look up the bundle once, store `nameSnapshot` + `pricePesewasSnapshot` on the
+  new line. `subtotal` = sum of `pricePesewasSnapshot * quantity` (pesewas). `MAX_QTY_PER_LINE` from
   `lib/constants` enforced **only** in `updateQuantity`.
 - `cart-button` (count badge) renders the count **only after `hydrated`** — never on first paint.
 - `sonner` toast on add ("Added to cart").
@@ -404,7 +408,7 @@ the owner's Jehucal storefront so payment (Paystack) and commission stay with th
 **ACCEPTANCE:** `npm run build` green; `grep -rn "Math.random" src` returns 0; the API route rejects
 cross-origin, bad phone, bad email and unknown bundles without calling Jehucal; a valid submit returns a
 Paystack URL and lands the browser on it; `/checkout/return` shows not-confirmed for an unpaid reference;
-phone normaliser unit-tested for `0531810252` -> `+233531810252` and `+233531810252` unchanged.
+phone normaliser unit-tested for `0541234567` -> `+233****4567` and `+233****4567` unchanged.
 **NON-GOALS:** no gateway account, no API key, no webhooks, no local order database, no multi-item payment.
 
 ## Phase E — Polish + deploy readiness  →  *route: any tier (mechanical) + you verify*

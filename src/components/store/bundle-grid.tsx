@@ -72,7 +72,7 @@ export function BundleGrid({
               <NoBundlesYet />
             ) : (
               <ul className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-1">
-                {networkBundles.map((bundle, i) => (
+                {networkBundles.map((bundle) => (
                   <BundleCard
                     key={bundle.id}
                     bundle={bundle}

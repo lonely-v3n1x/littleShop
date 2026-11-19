@@ -34,14 +34,13 @@ store has no priced packages the site shows an empty state and links to the stor
 
 - Next.js (App Router, TypeScript)
 - Tailwind CSS + shadcn/ui
-- Auth0 (structure in place; credentials optional for v1)
 - Cloudflare Workers via OpenNext + Wrangler
 
 ## Getting started
 
 ```bash
 npm install
-cp .env.example .env.local   # fill in values when Auth0 is ready
+cp .env.example .env.local   # optional overrides; no keys are needed for v1
 npm run dev
 ```
 
@@ -54,7 +53,6 @@ catalogue or checkout.
 | Variable | Required | Purpose |
 |---|---|---|
 | `JEHUCAL_API_BASE` | no | Override the Jehucal API base (default `https://backend.jehucale-business.com`). |
-| `AUTH0_*`, `APP_BASE_URL` | no (v1) | Reserved for the sign-in placeholder. |
 
 There is **no payment secret** to configure: Jehucal's public storefront checkout is anonymous and
 attributes the sale by store URL + package id.

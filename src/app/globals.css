@@ -1,16 +1,116 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
-@import "tailwindcss";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 @layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 152 65% 30%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 48 96% 50%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 152 60% 95%;
+    --accent-foreground: 152 65% 24%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 152 65% 30%;
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 222 47% 8%;
+    --foreground: 210 40% 98%;
+    --card: 222 40% 11%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 40% 11%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 152 60% 45%;
+    --primary-foreground: 222 47% 8%;
+    --secondary: 48 96% 50%;
+    --secondary-foreground: 222 47% 8%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 152 40% 20%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62% 45%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217 33% 20%;
+    --input: 217 33% 20%;
+    --ring: 152 60% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
   html {
     scroll-behavior: smooth;
   }
   body {
+    @apply bg-background text-foreground antialiased;
     font-family: "Inter", sans-serif;
     -webkit-font-smoothing: antialiased;
   }
   button {
     cursor: pointer;
+  }
+}
+
+/* Figma-inspired component classes (see the design inspo: cream/lime/purple,
+   extrabold type, pill buttons). Restored for Tailwind v3 — the v4-style
+   `@import "tailwindcss"` rewrite broke the build and dropped the tokens. */
+@layer components {
+  .icon-button {
+    @apply grid h-10 w-10 place-items-center rounded-full transition-colors hover:bg-black/5;
+  }
+
+  .nav-link {
+    @apply relative py-2 text-black/65 transition-colors hover:text-black;
+  }
+
+  .nav-link::after {
+    content: "";
+    @apply absolute bottom-0 left-0 h-px w-0 bg-black transition-all duration-300;
+  }
+
+  .nav-link:hover::after {
+    @apply w-full;
+  }
+
+  .primary-button {
+    @apply flex h-14 items-center justify-center gap-3 rounded-full bg-[#181814] px-7 font-extrabold text-white transition-all hover:-translate-y-0.5 hover:bg-[#6d3bf5];
+  }
+
+  .secondary-button {
+    @apply flex h-14 items-center justify-center rounded-full border border-black/20 px-7 font-extrabold transition-all hover:border-black hover:bg-white;
+  }
+
+  .tab-button {
+    @apply rounded-full px-5 py-3 text-sm font-bold text-white/50 transition-all;
+  }
+
+  .tab-button.active {
+    @apply bg-[#d7ff46] text-black;
+  }
+
+  .product-card {
+    @apply rounded-[28px] border border-white/10 bg-white/[.055] p-3 transition-all duration-300 hover:-translate-y-1 hover:bg-white/[.09];
+  }
+
+  .add-button {
+    @apply flex h-10 items-center gap-2 rounded-full bg-white px-4 text-sm font-extrabold text-black transition-colors hover:bg-[#d7ff46];
   }
 }
 
@@ -30,10 +130,19 @@
   100% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0); }
 }
 
+.gift-visual {
+  animation: drift 6s ease-in-out infinite;
+}
+
+.float-chip {
+  animation: floatChip 4s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: .01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
   }
 }

@@ -56,8 +56,5 @@ MTN 30/40/50GB, AT 20GB (cost 25% over street), AT 30/40/50GB, Telecel 100GB.
 ## How to apply (you or me)
 
 Dashboard → Store → Packages: tick **Available** and set the **store price** for each SKU.
-Live catalogue reflects changes within ~1 minute.
-
-If you give me dashboard login details I can apply the Tier 1 list here — otherwise, to have me set
-them, provide an API/admin route or an authenticated session I can drive; if not, the tables above
-are yours to copy in.
+Live catalogue reflects changes within ~1 minute. The tables above are the reference list
+to copy in; no credentials or authenticated session are needed in this repo.

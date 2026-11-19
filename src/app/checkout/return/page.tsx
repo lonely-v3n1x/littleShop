@@ -7,6 +7,7 @@ import {
   reverifyOrder,
   type ReverifyResult,
 } from "@/features/data/catalogue";
+import { recordOrderEvent, recordOrderOutcome } from "@/features/orders/store";
 
 export const metadata: Metadata = {
   title: "Payment status — blink",
@@ -39,6 +40,19 @@ export default async function CheckoutReturnPage({
   } else {
     try {
       result = await reverifyOrder(reference);
+      // Mirror the verdict into the D1 order log (fail-soft no-op without the
+      // binding). Only SUCCESS marks an order paid — Jehucal's FAILED can
+      // still mean "pending", so anything else keeps the order pending.
+      if (result.status === "SUCCESS") {
+        await recordOrderOutcome(reference, "paid", "reverify.SUCCESS", {
+          message: result.message,
+          orderId: result.orderId,
+        });
+      } else {
+        await recordOrderEvent(reference, `reverify.${result.status}`, {
+          message: result.message,
+        });
+      }
     } catch (caught) {
       error =
         caught instanceof Error

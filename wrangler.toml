@@ -7,12 +7,37 @@ compatibility_flags = ["nodejs_compat"]
 directory = ".open-next/assets"
 binding = "ASSETS"
 
-# Future bindings (uncomment when needed in later phases):
-# [d1_databases]
+# Checkout rate limiting via the Workers Rate Limiting API — counts persist
+# per Cloudflare location across isolates (no provisioning needed).
+# Keys used by src/features/rate-limit/checkout.ts:
+[[ratelimits]]
+name = "CHECKOUT_RATE_LIMITER"
+namespace_id = "1001"
+
+  [ratelimits.simple]
+  limit = 30
+  period = 60
+
+# Per-recipient checkout limit (key: phone:<national number>).
+[[ratelimits]]
+name = "CHECKOUT_PHONE_LIMITER"
+namespace_id = "1002"
+
+  [ratelimits.simple]
+  limit = 6
+  period = 60
+
+# D1 order log (orders + order_events). Enable with:
+#   1. npx wrangler d1 create littleshop-db
+#   2. paste the printed database_id below and uncomment the block
+#   3. npx wrangler d1 migrations apply littleshop-db --remote
+# Until then the order-log code is a graceful no-op.
+# [[d1_databases]]
 # binding = "DB"
 # database_name = "littleshop-db"
-# database_id = "<d1-database-id>"
-#
-# [kv_namespaces]
-# binding = "CACHE"
-# id = "<kv-namespace-id>"
+# database_id = "<paste from wrangler d1 create>"
+# migrations_dir = "migrations"
+
+# Optional: Paystack webhook verification secret (charge.success/failed).
+# Set with: npx wrangler secret put PAYSTACK_WEBHOOK_SECRET
+# The webhook route returns 503 until this is configured.

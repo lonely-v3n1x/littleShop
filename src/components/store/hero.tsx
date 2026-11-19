@@ -29,7 +29,7 @@ export function Hero() {
     <section aria-labelledby="hero-title" className="relative overflow-hidden">
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(110%_75%_at_12%_-8%,hsl(var(--primary)/0.12),transparent_58%),radial-gradient(80%_60%_at_100%_100%,hsl(var(--secondary)/0.18),transparent_55%)]"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(110%_75%_at_12%_-8%,hsl(var(--primary)/0.11),transparent_58%),radial-gradient(60%_50%_at_100%_115%,hsl(var(--secondary)/0.09),transparent_60%)]"
       />
       <div
         aria-hidden="true"

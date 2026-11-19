@@ -293,7 +293,7 @@ export function CheckoutForm({
         </p>
       </section>
 
-      <section aria-labelledby="recipient-title" className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+      <section aria-labelledby="recipient-title" className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
         <h2 id="recipient-title" className="text-base font-semibold">
           Who gets the data
         </h2>
@@ -318,7 +318,7 @@ export function CheckoutForm({
               onBlur={() => setTouched(true)}
               aria-describedby="recipient-help"
               aria-invalid={phoneError ? true : undefined}
-              className="h-12 rounded-xl px-4 text-base sm:text-sm"
+              className="h-12 rounded-xl border-border bg-background px-4 text-base shadow-sm placeholder:text-muted-foreground/70 sm:text-sm"
             />
             <p id="recipient-help" className="text-xs text-muted-foreground">
               A Ghanaian number, with or without +233.
@@ -353,7 +353,7 @@ export function CheckoutForm({
               onBlur={() => setEmailTouched(true)}
               aria-describedby="email-help"
               aria-invalid={emailError ? true : undefined}
-              className="h-12 rounded-xl px-4 text-base sm:text-sm"
+              className="h-12 rounded-xl border-border bg-background px-4 text-base shadow-sm placeholder:text-muted-foreground/70 sm:text-sm"
             />
             <p id="email-help" className="text-xs text-muted-foreground">
               Paystack sends the payment receipt here.
@@ -380,7 +380,7 @@ export function CheckoutForm({
 
       <section
         aria-labelledby="pay-title"
-        className="rounded-2xl border border-secondary/60 bg-secondary/10 p-5"
+        className="rounded-2xl border border-secondary/60 bg-secondary/10 p-5 sm:p-6"
       >
         <div className="flex items-start gap-3">
           <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-background text-foreground">
@@ -404,7 +404,7 @@ export function CheckoutForm({
           </Alert>
         ) : null}
 
-        <div className="mt-4">
+        <div className="mt-4 hidden sm:block">
           <Button
             type="submit"
             size="lg"
@@ -417,6 +417,27 @@ export function CheckoutForm({
           <p className="mt-2 text-center text-xs text-muted-foreground">
             The order is placed in our Jehucal store, then Paystack handles payment.
           </p>
+        </div>
+
+        {/* Thumb-zone CTA on phones; the same form submit, no duplicate logic. */}
+        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur sm:hidden">
+          <div className="mx-auto flex max-w-lg items-center gap-3">
+            <div className="min-w-0 flex-1">
+              <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Total</p>
+              <p className="text-lg font-bold leading-tight tabular-nums">
+                {formatGhs(selected.pricePesewas)}
+              </p>
+            </div>
+            <Button
+              type="submit"
+              size="lg"
+              disabled={submitting}
+              className="h-12 min-w-48 rounded-full px-5 text-sm font-semibold"
+            >
+              {submitting ? "Starting…" : "Continue to payment"}
+              <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+            </Button>
+          </div>
         </div>
       </section>
 

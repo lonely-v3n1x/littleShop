@@ -65,7 +65,11 @@ export function CartSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="mx-auto w-full max-w-xl gap-0 rounded-t-2xl p-0 sm:rounded-2xl">
+      <SheetContent side="bottom" className="mx-auto w-full max-w-xl gap-0 rounded-t-3xl p-0 sm:rounded-3xl">
+        <div
+          aria-hidden="true"
+          className="mx-auto mt-2.5 h-1 w-10 shrink-0 rounded-full bg-border sm:hidden"
+        />
         <SheetHeader className="border-b border-border px-5 py-4">
           <SheetTitle className="text-lg">Your cart</SheetTitle>
           <SheetDescription>

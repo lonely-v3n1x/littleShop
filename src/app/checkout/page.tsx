@@ -34,7 +34,7 @@ export default async function CheckoutPage({
   }
 
   return (
-    <div className="container py-8">
+    <div className="container py-8 sm:py-14">
       <div className="mx-auto max-w-lg">
         <Link
           href="/"
@@ -43,13 +43,13 @@ export default async function CheckoutPage({
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           Back to bundles
         </Link>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight">Check your order</h1>
+        <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">Check your order</h1>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           One quick look, then you&rsquo;ll pay on Paystack&rsquo;s secure page. The order itself is
           placed in our Jehucal store.
         </p>
 
-        <div className="mt-6">
+        <div className="mt-8">
           {catalogueFailed ? (
             <Alert variant="destructive">
               <AlertTitle>The live catalogue is not answering</AlertTitle>

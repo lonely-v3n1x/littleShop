@@ -48,7 +48,7 @@ export default async function CheckoutReturnPage({
   }
 
   return (
-    <div className="container py-10">
+    <div className="container py-10 sm:py-14">
       <div className="mx-auto max-w-lg">
         <Link
           href="/"
@@ -58,12 +58,12 @@ export default async function CheckoutReturnPage({
           Back to littleShop
         </Link>
 
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight">Payment status</h1>
+        <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">Payment status</h1>
 
         {result ? (
           result.status === "SUCCESS" ? (
-            <div className="mt-6 rounded-2xl border border-primary/30 bg-accent/60 p-5">
-              <span className="grid h-11 w-11 place-items-center rounded-full bg-background text-primary">
+            <div className="mt-8 rounded-2xl border border-primary/30 bg-accent/60 p-6 shadow-sm motion-safe:animate-in motion-safe:fade-in-0 motion-safe:slide-in-from-bottom-2 motion-safe:duration-500 sm:p-7">
+              <span className="grid h-12 w-12 place-items-center rounded-full bg-background text-primary shadow-sm">
                 <CheckCircle2 className="h-6 w-6" aria-hidden="true" />
               </span>
               <h2 className="mt-3 text-lg font-semibold">Payment confirmed</h2>
@@ -89,8 +89,8 @@ export default async function CheckoutReturnPage({
               </a>
             </div>
           ) : (
-            <div className="mt-6 rounded-2xl border border-secondary/70 bg-secondary/10 p-5">
-              <span className="grid h-11 w-11 place-items-center rounded-full bg-background text-foreground">
+            <div className="mt-8 rounded-2xl border border-secondary/70 bg-secondary/10 p-6 shadow-sm motion-safe:animate-in motion-safe:fade-in-0 motion-safe:slide-in-from-bottom-2 motion-safe:duration-500 sm:p-7">
+              <span className="grid h-12 w-12 place-items-center rounded-full bg-background text-foreground shadow-sm">
                 <AlertTriangle className="h-6 w-6" aria-hidden="true" />
               </span>
               <h2 className="mt-3 text-lg font-semibold">Payment not confirmed yet</h2>

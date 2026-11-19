@@ -7,22 +7,22 @@ import { Footer } from "@/components/layout/footer";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://littleshop.gh";
 
 export const metadata: Metadata = {
-  title: "littleShop — Mobile data for Ghana",
+  title: "blink — Mobile data for Ghana",
   description: "Buy MTN, Telecel and AT data bundles instantly, straight from our live Jehucal store.",
   keywords: ["Ghana", "mobile data", "AirtelTigo", "Telecel", "MTN", "data bundles", "bundle prices", "AT"],
   robots: { index: true, follow: true },
   openGraph: {
     type: "website",
-    title: "littleShop — Mobile data for Ghana",
+    title: "blink — Mobile data for Ghana",
     description: "Buy MTN, Telecel and AT data bundles instantly.",
     url: SITE_URL,
-    siteName: "littleShop",
+    siteName: "blink",
     locale: "en_GH",
   },
   alternates: { canonical: SITE_URL + "/" },
   twitter: {
     card: "summary_large_image",
-    title: "littleShop — Mobile data for Ghana",
+    title: "blink — Mobile data for Ghana",
     description: "Buy MTN, Telecel and AT data bundles instantly.",
   },
 };

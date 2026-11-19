@@ -6,7 +6,7 @@ export function Footer() {
     <footer className="mt-16 border-t border-border bg-muted/30">
       <div className="container grid gap-8 py-10 sm:grid-cols-2 lg:grid-cols-3">
         <div>
-          <p className="text-base font-semibold tracking-tight">littleShop</p>
+          <p className="text-base font-semibold tracking-tight">blink</p>
           <p className="mt-2 max-w-xs text-sm leading-relaxed text-muted-foreground">
             Mobile data for Ghana. MTN, Telecel and AT bundles, delivered fast.
           </p>
@@ -48,7 +48,7 @@ export function Footer() {
       <div className="border-t border-border/60">
         <div className="container flex flex-col gap-2 py-5 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
           <p>
-            littleShop is an authorized reseller. All purchases are completed and delivered
+            blink is an authorized reseller. All purchases are completed and delivered
             through our partner store, Jehucal.
           </p>
           <p>Prices in Ghana cedis. Pay by MoMo or card.</p>

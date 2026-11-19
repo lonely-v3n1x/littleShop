@@ -8,7 +8,7 @@ import { getNetworkById } from "./networks";
  * handlers / server components), never from a browser component.
  *
  * The catalogue is the ONLY source of bundle ids, sizes and prices. If the
- * storefront does not return it, littleShop shows an empty state instead of
+ * storefront does not return it, blink shows an empty state instead of
  * inventing a SKU.
  */
 
@@ -87,7 +87,7 @@ function mapPackage(raw: RawPackage, checkedAt: string): DataBundle | null {
   const size = asFiniteNumber(raw.size);
   const price = asFiniteNumber(raw.price);
 
-  // Only usable data packages on the three networks littleShop sells. Mashup /
+  // Only usable data packages on the three networks blink sells. Mashup /
   // minutes-based products (MTN_AFA_MASHUP, SPECIAL_MASHUP) are skipped until
   // the UI has a concept for them. `size` is GB and may be fractional (0.5 = 500 MB).
   if (!id || !networkId) return null;
@@ -194,7 +194,7 @@ export interface CheckoutSession {
  * the sale belong to `littleFlower`, so the commission lands on the owner's
  * balance exactly as if the customer had used the storefront directly.
  *
- * littleShop never sees a card number, a MoMo PIN or a payment webhook.
+ * blink never sees a card number, a MoMo PIN or a payment webhook.
  */
 export async function createCheckoutSession(input: {
   packageId: string;

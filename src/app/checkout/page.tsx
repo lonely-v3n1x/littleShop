@@ -8,7 +8,7 @@ import { fetchCatalogue } from "@/features/data/catalogue";
 import type { DataBundle } from "@/types";
 
 export const metadata: Metadata = {
-  title: "Buy data — littleShop",
+  title: "Buy data — blink",
   description: "Check your order. Payment is handled by Paystack for our Jehucal store.",
   robots: { index: false },
 };

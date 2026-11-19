@@ -3,7 +3,7 @@ import Link from "next/link";
 import { CartRouteSwitch } from "@/components/store/cart-route-switch";
 
 export const metadata: Metadata = {
-  title: "Your cart — littleShop",
+  title: "Your cart — blink",
   robots: { index: false },
 };
 

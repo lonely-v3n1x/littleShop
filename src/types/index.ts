@@ -1,5 +1,5 @@
 /**
- * littleShop — domain types (single source of truth).
+ * blink — domain types (single source of truth).
  * Everything imports from `@/types`, never from `@/features/*`.
  *
  * Money is ALWAYS integer pesewas end-to-end: 1000 === GH₵10.00.
@@ -17,8 +17,10 @@ export type ExpiryType = "non-expiry" | "daily" | "weekly" | "monthly" | "night"
 export interface Network {
   id: NetworkId;
   name: string;
-  /** hex — used ONLY as a dot / 2px border chip, never as bg or text */
+  /** hex — used ONLY as a dot / 2px border chip, never as a bg or text */
   brandColor: string;
+  /** ink color on the brand strip behind the card's big number, or white */
+  textOnColor: string;
   /** text placeholder until logos exist */
   logoText: string;
   active: boolean;

@@ -10,7 +10,7 @@ export const RECIPIENT_STORAGE_KEY = "littleshop.recipient";
 export const RECIPIENT_EMAIL_STORAGE_KEY = "littleshop.recipient.email";
 
 /**
- * Jehucal is the merchant of record and the data agent. littleShop never charges
+ * Jehucal is the merchant of record and the data agent. blink never charges
  * a card or a wallet: it creates the order on the owner's storefront through
  * Jehucal's public checkout API and sends the customer to the Paystack page that
  * Jehucal's own storefront uses. The sale (and therefore the commission) belongs

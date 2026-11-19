@@ -1,4 +1,4 @@
-# Ghana data-bundle pricing research - littleShop
+# Ghana data-bundle pricing research - blink
 
 **Date:** 16-17 Nov 2026
 **Account:** Jehucal agent `AGT800`, store slug `littleFlower`, tier **BASE**
@@ -243,11 +243,11 @@ But it sends **no `Access-Control-Allow-Origin` header**. That means:
 - a **browser** on `littleshop` cannot `fetch()` it - the request is blocked by CORS;
 - a **server** (a Next route handler on Workers, or a build step) **can** fetch it fine.
 
-So littleShop must **proxy** the catalogue server-side (or simply link out to the storefront).
-**Amended 2026-11-18:** the proxy was chosen and extended into the checkout path. littleShop fetches the
+So blink must **proxy** the catalogue server-side (or simply link out to the storefront).
+**Amended 2026-11-18:** the proxy was chosen and extended into the checkout path. blink fetches the
 catalogue server-side (60 s cache) and its own server route calls Jehucal's anonymous
 `POST /storefront/checkout` with `storeUrl: littleFlower`, so the order (and commission) stays on the
-owner's store while the customer checks out in littleShop's UI and pays on the Paystack page Jehucal
+owner's store while the customer checks out in blink's UI and pays on the Paystack page Jehucal
 returns. See `plan.md` §1.6. The CORS finding is unchanged and is *why* checkout must run server-side.
 
 ### 7.3 A cross-tenant data leak (report it; do not build on it)
@@ -262,7 +262,7 @@ including the customer's email address, that other store's WhatsApp number, and 
 and charged.
 
 This is a tenant data leak. Do not build a "your orders" or phone lookup feature on it. Tell the Jehucal
-owner. It is also a reason not to send customer phone numbers to that endpoint from littleShop at all.
+owner. It is also a reason not to send customer phone numbers to that endpoint from blink at all.
 
 ### 7.4 The storefront checkout is anonymous too (verified 2026-11-18)
 
@@ -287,7 +287,7 @@ POST https://backend.jehucale-business.com/storefront/orders/reverify
 - `callbackUrl` is optional and is where Paystack returns the customer.
 - Only **one `agentPackageId` per payment** — there is no multi-item checkout.
 - Because the sale is attributed by `storeUrl`, the order and commission land on the owner's store even
-  though the UI is littleShop's. littleShop's server route (`src/app/api/checkout/route.ts`) is the only
+  though the UI is blink's. blink's server route (`src/app/api/checkout/route.ts`) is the only
   caller; the API is CORS-less, so it must stay server-side.
 
 ---
@@ -310,12 +310,12 @@ POST https://backend.jehucale-business.com/storefront/orders/reverify
    you, given tier thresholds? Worth a per-network calculation once you have a month of data.
 3. Can a storefront toggle **partial availability** (some SKUs hidden, some shown) per network? The current
    payload suggests yes (`available` is per package).
-4. Is there an agreed **minimum delivery SLA** (the store claims "under 30 min") that littleShop can state
+4. Is there an agreed **minimum delivery SLA** (the store claims "under 30 min") that blink can state
    publicly, or does that depend on the aggregator?
 
 ## 9. Next action
 
-The engineering path described here is now implemented: littleShop reads the live catalogue server-side
+The engineering path described here is now implemented: blink reads the live catalogue server-side
 and runs its own checkout UI while the order is created on `littleFlower` through Jehucal's public
 `/storefront/checkout` (plan §1.6, findings §7.4). The remaining blocker is stock, not code — only one
 package is currently `available: true`, so enable more packages and set their store prices in the

@@ -1,124 +1,116 @@
-import Link from "next/link";
-import { ArrowRight, BadgeCheck, Clock, MessageCircle, ShieldCheck } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { SUPPORT_WHATSAPP_URL } from "@/lib/constants";
+import { ArrowRight, Bolt, Globe, Shield, Sparkles, Wifi } from "lucide-react";
+import type { DataBundle } from "@/types";
+import { getNetworkById } from "@/features/data/networks";
+import { expiryLabel, formatDataMb } from "@/lib/data-size";
+import { DELIVERY_PROMISE } from "@/lib/constants";
 
-const TRUST = [
-  {
-    icon: Clock,
-    title: "Fast delivery",
-    body: "Most orders land within minutes.",
-  },
-  {
-    icon: BadgeCheck,
-    title: "Authorized reseller",
-    body: "Delivered through Jehucal, our verified partner.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Secure payment",
-    body: "Pay on Paystack. We never see your MoMo PIN.",
-  },
-] as const;
+/**
+ * FigFeva-inspired hero for the FigFeva-inspired shop.hero-art`, h-48/sm:h-[560px].
+ * Keep it structural so future stylers can restyle it.
+ */
 
-/** A quiet, staggered entrance — reduced-motion users just see the settled layout. */
-const enter = "motion-safe:animate-in motion-safe:fade-in-0 motion-safe:slide-in-from-bottom-3 motion-safe:duration-500";
+export function Hero({ bundles }: { bundles: DataBundle[] }) {
+  const hero = bundles[0];
+  const network = hero ? getNetworkById(hero.networkId) : undefined;
+  const validity = hero?.expiryType
+    ? expiryLabel(hero.expiryType).toUpperCase()
+    : "INSTANT";
 
-export function Hero() {
+  const trust = [
+    { icon: Shield, text: "Secure checkout" },
+    { icon: Bolt, text: "Instant delivery" },
+    { icon: Globe, text: "30+ countries" },
+  ];
+
+  function scrollToShop() {
+    document.getElementById("shop")?.scrollIntoView({ behavior: "smooth" });
+  }
+
   return (
-    <section aria-labelledby="hero-title" className="relative overflow-hidden">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(110%_75%_at_12%_-8%,hsl(var(--primary)/0.11),transparent_58%),radial-gradient(60%_50%_at_100%_115%,hsl(var(--secondary)/0.09),transparent_60%)]"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-background to-transparent"
-      />
-
-      <div className="container relative py-14 sm:py-20">
-        <div
-          className={`inline-flex min-h-9 items-center gap-2 rounded-full border border-border bg-card/70 px-3 text-xs font-medium text-muted-foreground shadow-sm backdrop-blur ${enter}`}
-          style={{ animationDelay: "40ms" }}
-        >
-          <span className="relative flex h-2 w-2" aria-hidden="true">
-            <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-60 motion-safe:animate-ping" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
-          </span>
-          Live prices <span className="text-border">·</span> MTN, Telecel &amp; AT
-        </div>
-
-        <h1
-          id="hero-title"
-          className={`mt-6 max-w-2xl text-balance text-[2.5rem] font-semibold leading-[1.06] tracking-[-0.03em] sm:text-6xl ${enter}`}
-          style={{ animationDelay: "90ms" }}
-        >
-          Mobile data for Ghana, in under a minute.
-        </h1>
-
-        <p
-          className={`mt-5 max-w-xl text-pretty text-base leading-7 text-muted-foreground sm:text-lg ${enter}`}
-          style={{ animationDelay: "140ms" }}
-        >
-          Pick a bundle, enter the number, and pay on Paystack&rsquo;s secure page. The order is
-          placed in our Jehucal store, and the data follows.
-        </p>
-
-        <div
-          className={`mt-8 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4 ${enter}`}
-          style={{ animationDelay: "190ms" }}
-        >
-          <Button
-            asChild
-            size="lg"
-            className="h-12 w-full rounded-full px-6 text-base shadow-md shadow-primary/10 transition-transform motion-safe:hover:-translate-y-0.5 sm:w-auto"
-          >
-            <Link href="#bundles">
-              Buy data now
-              <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </Link>
-          </Button>
-          <Link
-            href="#faq"
-            className="inline-flex min-h-12 items-center justify-center gap-1.5 rounded-full px-4 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-          >
-            How it works
-          </Link>
-        </div>
-
-        <ul
-          aria-label="Why littleShop"
-          className={`mt-10 divide-y divide-border rounded-2xl border border-border bg-card/80 p-1 shadow-sm backdrop-blur sm:grid sm:grid-cols-3 sm:divide-x sm:divide-y-0 ${enter}`}
-          style={{ animationDelay: "240ms" }}
-        >
-          {TRUST.map(({ icon: Icon, title, body }) => (
-            <li key={title} className="flex items-center gap-3 px-3 py-3 sm:px-4">
-              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-accent text-accent-foreground">
-                <Icon className="h-4 w-4" aria-hidden="true" />
+    <section className="relative overflow-hidden">
+      <div className="mx-auto grid min-h-[670px] max-w-[1440px] items-center gap-12 overflow-hidden px-5 py-14 sm:px-8 lg:grid-cols-[1.02fr_.98fr] lg:px-12 lg:py-20">
+        <div className="relative z-10 max-w-[680px]">
+          <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-black/15 bg-white/60 px-3.5 py-2 text-xs font-bold uppercase tracking-[.14em]">
+            <span className="h-2 w-2 rounded-full bg-[#7bbf24]" /> Delivered in seconds
+          </div>
+          <h1 className="text-[clamp(3.5rem,7vw,7rem)] font-extrabold leading-[.87] tracking-[-.065em]">
+            Instant joy.
+            <br />
+            <span className="text-[#6d3bf5]">Zero waiting.</span>
+          </h1>
+          <p className="mt-8 max-w-[550px] text-lg leading-relaxed text-black/65 sm:text-xl">
+            Top up your world with fast data bundles and digital gift cards, delivered straight
+            to your phone.
+          </p>
+          <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+            <button
+              type="button"
+              onClick={scrollToShop}
+              className="flex h-14 items-center justify-center gap-3 rounded-full bg-[#181814] px-7 font-extrabold text-white transition-all hover:-translate-y-0.5 hover:bg-[#6d3bf5]"
+            >
+              Buy data <ArrowRight className="h-6 w-6" aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              onClick={scrollToShop}
+              className="flex h-14 items-center justify-center rounded-full border border-black/20 px-7 font-extrabold transition-all hover:border-black hover:bg-white"
+            >
+              Shop gift cards
+            </button>
+          </div>
+          <div className="mt-10 flex flex-wrap gap-x-6 gap-y-3 text-sm font-semibold text-black/60">
+            {trust.map(({ icon: Icon, text }) => (
+              <span key={text} className="flex items-center gap-2">
+                <Icon className="h-[17px] w-[17px]" aria-hidden="true" /> {text}
               </span>
-              <div className="min-w-0">
-                <p className="text-sm font-medium">{title}</p>
-                <p className="text-xs leading-snug text-muted-foreground">{body}</p>
-              </div>
-            </li>
-          ))}
-        </ul>
+            ))}
+          </div>
+        </div>
 
-        <p
-          className={`mt-5 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground ${enter}`}
-          style={{ animationDelay: "290ms" }}
-        >
-          <MessageCircle className="h-3.5 w-3.5" aria-hidden="true" />
-          Buying for a group?{" "}
-          <a
-            href={SUPPORT_WHATSAPP_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-medium text-foreground underline decoration-border underline-offset-4 transition-colors hover:decoration-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-          >
-            Chat with us on WhatsApp
-          </a>
-        </p>
+        <div className="hero-art relative mx-auto h-[470px] w-full max-w-[610px] sm:h-[560px]">
+          <div className="absolute left-[6%] top-[15%] h-[72%] w-[75%] rotate-[-7deg] rounded-[42px] bg-[#d7ff46]" />
+          <div className="gift-visual absolute left-[12%] top-[8%] h-[72%] w-[74%] rotate-[5deg] rounded-[38px] border border-white/20 bg-[#6d3bf5] p-7 text-white shadow-[0_35px_80px_rgba(42,22,98,.25)] sm:p-10">
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-2 text-lg font-extrabold">
+                <Bolt className="h-5 w-5" aria-hidden="true" /> blink
+              </span>
+              <Wifi className="h-6 w-6" aria-hidden="true" />
+            </div>
+            <div className="mt-16 sm:mt-24">
+              <p className="text-sm font-semibold uppercase tracking-[.18em] text-white/60">
+                {network?.name ?? "Global"} data pass
+              </p>
+              <p className="mt-2 text-6xl font-extrabold tracking-[-.06em] sm:text-7xl">
+                {hero ? formatDataMb(hero.dataMb) : "1 GB"}
+              </p>
+              <p className="mt-3 text-white/70">Stay connected. Wherever you go.</p>
+            </div>
+            <div className="absolute bottom-8 left-7 right-7 flex items-end justify-between sm:left-10 sm:right-10">
+              <div>
+                <p className="text-xs text-white/55">VALID FOR</p>
+                <p className="mt-1 font-bold">{validity}</p>
+              </div>
+              <div className="relative grid h-14 w-14 place-items-center rounded-full bg-[#d7ff46] text-black">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-[#d7ff46] opacity-75 motion-safe:animate-ping" />
+                <Globe className="relative h-6 w-6" aria-hidden="true" />
+              </div>
+            </div>
+          </div>
+          <div className="float-chip absolute bottom-[2%] right-[1%] rounded-2xl bg-white p-4 shadow-[0_18px_45px_rgba(0,0,0,.14)] sm:right-[3%]">
+            <div className="flex items-center gap-3">
+              <span className="grid h-10 w-10 place-items-center rounded-full bg-[#d7ff46]">
+                <Bolt className="h-5 w-5" aria-hidden="true" />
+              </span>
+              <div>
+                <p className="text-xs text-black/50">Delivery time</p>
+                <p className="font-extrabold">{DELIVERY_PROMISE}</p>
+              </div>
+            </div>
+          </div>
+          <span className="absolute right-[2%] top-[8%] text-[#ff654b]">
+            <Sparkles className="h-14 w-14" aria-hidden="true" />
+          </span>
+        </div>
       </div>
     </section>
   );

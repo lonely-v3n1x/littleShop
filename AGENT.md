@@ -1,8 +1,8 @@
-# AGENT.md — littleShop storefront, project state for future agents
+# AGENT.md — blink storefront, project state for future agents
 
-The littleShop storefront: MTN/Telecel/AT data-bundle shop. Live, verified.
+The blink storefront: MTN/Telecel/AT data-bundle shop. Live, verified.
 
-## Purchase flow (current architecture — "checked out in littleShop, sold by Jehucal")
+## Purchase flow (current architecture — "checked out in blink, sold by Jehucal")
 
 1. **Catalogue** — server-side, live, no build-time snapshot:
    `GET https://backend.jehucale-business.com/storefront/public/littleFlower`
@@ -13,7 +13,7 @@ The littleShop storefront: MTN/Telecel/AT data-bundle shop. Live, verified.
    then calls `POST {JEHUCAL_API_BASE}/storefront/checkout` with
    `{storeUrl: "littleFlower", agentPackageId, email, phone, callbackUrl}`.
    Jehucal returns `{authorizationUrl, reference}`; browser is sent to it (Paystack).
-3. **Payment** — Paystack is Jehucal's gateway; littleShop never collects money or
+3. **Payment** — Paystack is Jehucal's gateway; blink never collects money or
    sees a card. After paying, customer returns to `/checkout/return?reference=...`.
 4. **Status** — `/checkout/return` calls `POST /storefront/orders/reverify`
    (`{reference}`) server-side; shows "Payment confirmed" only when

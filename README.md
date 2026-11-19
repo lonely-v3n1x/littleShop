@@ -1,4 +1,4 @@
-# littleShop
+# blink
 
 A mobile data reselling storefront for the Ghana market — first service in a platform designed to
 grow into a full digital-services shop.
@@ -8,8 +8,8 @@ grow into a full digital-services shop.
 
 ## How a purchase works
 
-littleShop does not own a payment gateway. It also doesn't send customers away to another site:
-checkout happens in littleShop's own UI, while the sale is created on the owner's Jehucal storefront.
+blink does not own a payment gateway. It also doesn't send customers away to another site:
+checkout happens in blink's own UI, while the sale is created on the owner's Jehucal storefront.
 
 1. **Catalogue** — the home page reads the live Jehucal catalogue server-side
    (`GET /storefront/public/littleFlower`, 60 s cache). Bundle ids, sizes and prices come from Jehucal;
@@ -20,7 +20,7 @@ checkout happens in littleShop's own UI, while the sale is created on the owner'
    `POST /storefront/checkout` with `storeUrl: littleFlower`, the package id, email, phone and a return
    URL. Jehucal creates the order **under the owner's store**, so the commission stays there, and
    returns a Paystack `authorization_url`.
-3. **Payment** — the browser is sent to Paystack's hosted page (Jehucal's gateway). littleShop never
+3. **Payment** — the browser is sent to Paystack's hosted page (Jehucal's gateway). blink never
    sees a card number, a MoMo PIN or a webhook.
 4. **Return** — Paystack returns the customer to `/checkout/return?reference=…`; that page asks Jehucal
    to `POST /storefront/orders/reverify` and shows **Payment confirmed** only when the status is
@@ -80,7 +80,7 @@ attributes the sale by store URL + package id.
 ## Notes
 
 - The cart is session-only (`localStorage`, read in an effect). No customer data is persisted by
-  littleShop; the order lives in Jehucal.
+  blink; the order lives in Jehucal.
 - Do **not** call Jehucal's `GET /storefront/orders/by-phone`: it is unauthenticated and leaks orders
   across stores (`pricing-strategy.md` §7.3).
 - `npm run build` and `npx @opennextjs/cloudflare build` are the gate before deploying.

@@ -159,7 +159,7 @@ export function CartSheet({
 
               <p className="text-center text-[11px] leading-snug text-muted-foreground">
                 Jehucal checkout takes one bundle per payment. Paystack handles the payment;
-                littleShop never sees your MoMo PIN.
+                blink never sees your MoMo PIN.
               </p>
 
               <div className="flex items-center justify-between">

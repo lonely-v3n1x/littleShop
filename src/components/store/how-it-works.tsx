@@ -15,7 +15,7 @@ const STEPS = [
   {
     icon: ShieldCheck,
     title: "Pay on Paystack",
-    body: "We place the order in our Jehucal store and Paystack takes the payment. littleShop never sees your MoMo PIN or card.",
+    body: "We place the order in our Jehucal store and Paystack takes the payment. blink never sees your MoMo PIN or card.",
   },
   {
     icon: Clock,

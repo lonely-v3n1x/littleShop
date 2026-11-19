@@ -1,11 +1,11 @@
-# littleShop — Plan & Execution Contract
+# blink — Plan & Execution Contract
 
 > **Status:** v2 — multi-model reviewed and reconciled.
 > **Review method (real, multi-model):** six lenses each run by a distinct AI model on actual
 > subagent workers, each reading this repo (not from memory). Findings were reconciled; conflicts
 > resolved per the decisions log (§2). Raw per-lens output is summarized in Appendix A.
 >
-> **Why this shape:** the owner will implement littleShop using a *variety* of AI coding models, some
+> **Why this shape:** the owner will implement blink using a *variety* of AI coding models, some
 > weak/low-performing. So this document is an **execution contract**, not a narrative. It splits into:
 > a **Frozen Core** (§0) that never changes and is pinned as context for *every* implementation prompt,
 > and **task cards** (§3) that are small, exact, and independently verifiable. Weak models get a small
@@ -177,13 +177,13 @@ Rules:
 # PART 1 — Product (stable context — change only via owner decision)
 
 ## 1.1 The idea, in the owner's words
-- A **data reselling website for the Ghana market**. Name: **littleShop**.
+- A **data reselling website for the Ghana market**. Name: **blink**.
 - **For now:** mobile data reselling. **Later:** more services on the same platform — "space to add more."
 - First deliverable: **frontend + mock data** (no real backend/payments).
 - This `plan.md` is the source of truth for stated wants + roadmap.
 
 ## 1.2 Vision
-littleShop is a **platform, not a one-off shop**. First service is mobile data; the architecture
+blink is a **platform, not a one-off shop**. First service is mobile data; the architecture
 (feature folders + `lib/services.ts` registry) must make airtime, bills, gift cards, subscriptions
 trivial to add later without rewrites.
 
@@ -222,20 +222,20 @@ dashboard, multi-item checkout (Jehucal takes one package per payment).
 **Explicit non-goals:** multi-currency, account-gated purchase, order-history persistence,
 email/SMS receipts, promo engine. (Roadmap, not gaps.)
 
-## 1.6 Fulfilment model — **checked out in littleShop, sold by Jehucal** (agreed 2026-11-18)
-The owner has **no payment gateway** and will not collect money on littleShop. The v1 link-out (old
-"Path B") is **superseded**: the customer now completes checkout in littleShop's own UI, while the
+## 1.6 Fulfilment model — **checked out in blink, sold by Jehucal** (agreed 2026-11-18)
+The owner has **no payment gateway** and will not collect money on blink. The v1 link-out (old
+"Path B") is **superseded**: the customer now completes checkout in blink's own UI, while the
 sale itself is still created on the owner's Jehucal storefront so the commission stays with the store.
 
 **How the money path works**
 
-1. littleShop renders the live Jehucal catalogue server-side (`GET /storefront/public/littleFlower`,
+1. blink renders the live Jehucal catalogue server-side (`GET /storefront/public/littleFlower`,
    CORS-less, 60 s cache). No build-time price snapshot, no mock catalogue.
-2. On submit, littleShop's server route (`POST /api/checkout`) re-checks the package against the live
+2. On submit, blink's server route (`POST /api/checkout`) re-checks the package against the live
    catalogue, then calls the same anonymous endpoint the Jehucal storefront itself uses:
    `POST /storefront/checkout { storeUrl, agentPackageId, email, phone, callbackUrl }`.
 3. Jehucal responds with `{ authorization_url, reference }`. The browser is sent to Paystack's hosted
-   page — Jehucal's gateway, not littleShop's. littleShop never sees a card number, MoMo PIN or webhook.
+   page — Jehucal's gateway, not blink's. blink never sees a card number, MoMo PIN or webhook.
 4. Paystack returns the customer to `/checkout/return?reference=...`; that page calls
    `POST /storefront/orders/reverify` server-side and shows confirmed / not-confirmed.
 5. Because `storeUrl` is `littleFlower`, the order is attributed to the owner's store and the spread is
@@ -246,7 +246,7 @@ sale itself is still created on the owner's Jehucal storefront so the commission
 - `/storefront/checkout` accepts **one `agentPackageId` per payment**. The cart is therefore a saved
   list; each line gets its own Buy action and one bundle is paid per checkout.
 - Only `available: true` packages with an integer `price` in **pesewas** are renderable. If the
-  catalogue has no usable package, littleShop shows an empty state and links to the storefront —
+  catalogue has no usable package, blink shows an empty state and links to the storefront —
   it must **never invent a price or SKU**.
 - `phone` is exactly the 10 national digits (e.g. `0531810252`). Email must be valid.
 - `POST /storefront/orders/reverify` returns a `status` (`SUCCESS`, `FAILED`, …) plus a message; treat
@@ -259,7 +259,7 @@ sale itself is still created on the owner's Jehucal storefront so the commission
 `status: FAILED`, message `Payment did not succeed or is still pending`.
 
 **Pricing authority:** the recommended grid lives in [`pricing-strategy.md`](./pricing-strategy.md).
-littleShop must **never invent a price**: it reads the Jehucal catalogue, and if a price is missing it
+blink must **never invent a price**: it reads the Jehucal catalogue, and if a price is missing it
 shows "see store" rather than guessing. Prices are **pesewas integers** end-to-end (see §0.2).
 
 ---
@@ -377,7 +377,7 @@ gated on `hydrated`.
 **NON-GOALS:** no checkout; cart is secondary (primary purchase path is Buy now, Phase D).
 
 ## Phase D — In-store checkout, sale created on Jehucal  ->  *route: mid tier*
-**Goal:** let the customer complete checkout inside littleShop's own UI, while the order is created on
+**Goal:** let the customer complete checkout inside blink's own UI, while the order is created on
 the owner's Jehucal storefront so payment (Paystack) and commission stay with the store. See §1.6.
 **Files:** `app/checkout/page.tsx`, `components/store/checkout-form.tsx`, `app/api/checkout/route.ts`,
 `app/checkout/return/page.tsx`, `features/data/catalogue.ts`.
@@ -386,7 +386,7 @@ the owner's Jehucal storefront so payment (Paystack) and commission stay with th
    `0XXXXXXXXX`; normalise to E.164 (`+233...`), then send the 10 national digits to Jehucal. Prefix hint
    (soft warn, never block) per §1.4. Email is required because Paystack sends the receipt there.
 2. **"Continue to payment"** summarises the order (pesewas via `formatGhs`) and states plainly that
-   littleShop places the order with Jehucal and Paystack takes the payment. It must not imply littleShop
+   blink places the order with Jehucal and Paystack takes the payment. It must not imply blink
    charges the card itself.
 3. `POST /api/checkout` (server only): same-origin check, size/rate limit, phone/email validation,
    re-fetch catalogue and reject an unknown/removed package (409), then call

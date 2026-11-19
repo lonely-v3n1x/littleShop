@@ -9,7 +9,7 @@ import {
 } from "@/features/data/catalogue";
 
 export const metadata: Metadata = {
-  title: "Payment status — littleShop",
+  title: "Payment status — blink",
   robots: { index: false },
 };
 
@@ -55,7 +55,7 @@ export default async function CheckoutReturnPage({
           className="inline-flex min-h-11 items-center gap-1.5 rounded-full pr-3 text-sm font-medium text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-          Back to littleShop
+          Back to blink
         </Link>
 
         <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">Payment status</h1>

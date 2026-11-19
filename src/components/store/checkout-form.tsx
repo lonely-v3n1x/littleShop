@@ -25,12 +25,12 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const NETWORK_LABEL: Record<string, string> = { mtn: "MTN", telecel: "Telecel", at: "AT" };
 
 /**
- * littleShop's own checkout UI, but not littleShop's own payment integration.
+ * blink's own checkout UI, but not blink's own payment integration.
  *
  * On submit we POST to our server route, which creates the order on the owner's
  * Jehucal storefront and returns the Paystack URL that the Jehucal storefront
  * itself would use. Money and delivery stay with Jehucal (so the store earns its
- * commission); littleShop never sees a card number or a MoMo PIN.
+ * commission); blink never sees a card number or a MoMo PIN.
  *
  * One bundle per payment is a Jehucal API constraint: /storefront/checkout takes
  * a single agentPackageId. The cart can hold several, but checkout starts one.

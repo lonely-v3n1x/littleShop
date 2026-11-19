@@ -1,4 +1,4 @@
-# Mistakes and lessons (littleShop, 19 Nov 2026)
+# Mistakes and lessons (blink, 19 Nov 2026)
 
 Repo-root doc produced by the review pass ("delete the useless stuff and put the mistakes
 and what to fix in a .md"). Dates: system date is 2026-11-19.
@@ -88,7 +88,7 @@ They were never paid. Delete them (or ignore them) before a launch.
   Buy action, and the footer only offers "continue" when exactly one line is selected.
 - Only `available: true`, integer-priced Jehucal packages show up. If the owner wants a fractional
   size (e.g. 500 MB, `size: 0.5`), that is supported now via `dataMb = Math.round(size * 1024)`.
-- Paystack is a third party the owner already uses for storefront; if they want littleShop to be
+- Paystack is a third party the owner already uses for storefront; if they want blink to be
   self-contained later, that is a new design (separate route + status polling).
 
 ---

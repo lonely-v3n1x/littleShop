@@ -1,7 +1,7 @@
 import type { Service } from "@/types";
 
 /**
- * Central registry of everything littleShop offers (now and later).
+ * Central registry of everything blink offers (now and later).
  * Adding a new service = implement it under src/features/<name> and add an entry here.
  * The UI reads this list to render the service rail and future "coming soon" cards.
  */

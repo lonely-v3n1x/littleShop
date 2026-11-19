@@ -41,7 +41,7 @@ export function Header() {
             </SheetTrigger>
             <SheetContent side="left" className="w-72 gap-0 p-0">
               <SheetHeader className="border-b border-border px-5 py-4">
-                <SheetTitle className="text-left">littleShop</SheetTitle>
+                <SheetTitle className="text-left">blink</SheetTitle>
               </SheetHeader>
               <nav aria-label="Mobile" className="px-2 py-3">
                 <ul className="space-y-1">
@@ -76,13 +76,13 @@ export function Header() {
 
           <Link
             href="/"
-            aria-label="littleShop home"
+            aria-label="blink home"
             className="flex items-center gap-2 rounded-full pr-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <span className="grid h-9 w-9 place-items-center rounded-full bg-primary text-primary-foreground">
               <Signal className="h-5 w-5" aria-hidden="true" />
             </span>
-            <span className="text-base font-semibold tracking-tight">littleShop</span>
+            <span className="text-base font-semibold tracking-tight">blink</span>
           </Link>
         </div>
 

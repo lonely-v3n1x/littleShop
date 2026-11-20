@@ -8,6 +8,7 @@ import {
 } from "@/features/data/catalogue";
 import { isIpRateLimited, isPhoneRateLimited } from "@/features/rate-limit/checkout";
 import { recordOrderCreated } from "@/features/orders/store";
+import { readBodyWithLimit } from "@/lib/request-body";
 
 export const dynamic = "force-dynamic";
 
@@ -89,7 +90,17 @@ export async function POST(request: Request) {
     );
   }
 
-  const body: unknown = await request.json().catch(() => null);
+  // Hard cap the actual body, not just the (spoofable) Content-Length header.
+  const raw = await readBodyWithLimit(request, MAX_BODY_BYTES).catch(() => null);
+  if (raw === null) {
+    return NextResponse.json({ error: "Request body is too large." }, { status: 413 });
+  }
+  let body: unknown;
+  try {
+    body = JSON.parse(raw);
+  } catch {
+    body = null;
+  }
   if (!isRecord(body)) {
     return NextResponse.json({ error: "Send a JSON object." }, { status: 400 });
   }

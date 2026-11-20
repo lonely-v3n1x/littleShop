@@ -2,6 +2,7 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 import { getCloudflareBindings } from "@/features/cloudflare/bindings";
 import { recordOrderEvent, recordOrderOutcome } from "@/features/orders/store";
+import { readBodyWithLimit } from "@/lib/request-body";
 
 export const dynamic = "force-dynamic";
 
@@ -28,8 +29,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Webhook is not configured." }, { status: 503 });
   }
 
-  const raw = await request.text();
-  if (raw.length > MAX_BODY_BYTES) {
+  const raw = await readBodyWithLimit(request, MAX_BODY_BYTES).catch(() => null);
+  if (raw === null) {
     return NextResponse.json({ error: "Payload too large." }, { status: 413 });
   }
 

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, Info } from "lucide-react";
+import { ArrowUpRight, Info } from "lucide-react";
 import type { DataBundle } from "@/types";
 import { formatGhs } from "@/lib/money";
 import { normaliseGhanaPhone, networkHintForE164 } from "@/lib/phone";
@@ -14,6 +14,12 @@ import {
   RECIPIENT_STORAGE_KEY,
   SUPPORT_WHATSAPP_URL,
 } from "@/lib/constants";
+import {
+  clearRecipients,
+  readRecipients,
+  saveRecipient,
+  type RecentRecipient,
+} from "@/lib/recipients";
 import { getNetworkById } from "@/features/data/networks";
 import { useCart } from "@/providers/cart-provider";
 import { Button } from "@/components/ui/button";
@@ -23,6 +29,11 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const NETWORK_LABEL: Record<string, string> = { mtn: "MTN", telecel: "Telecel", at: "AT" };
+
+/** 0541234567 -> "054 123 4567" for the recent-recipient chips. */
+function formatNational(phone: string): string {
+  return `${phone.slice(0, 3)} ${phone.slice(3, 6)} ${phone.slice(6)}`;
+}
 
 /**
  * blink's own checkout UI, but not blink's own payment integration.
@@ -46,6 +57,7 @@ export function CheckoutForm({
   const [phone, setPhone] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [remember, setRemember] = React.useState(false);
+  const [recents, setRecents] = React.useState<RecentRecipient[]>([]);
   const [touched, setTouched] = React.useState(false);
   const [emailTouched, setEmailTouched] = React.useState(false);
   const [submitting, setSubmitting] = React.useState(false);
@@ -61,15 +73,17 @@ export function CheckoutForm({
     } catch {
       // Private mode: just start with empty fields.
     }
+    setRecents(readRecipients());
   }, []);
 
   const selectedFromUrl = bundleId
     ? bundles.find((bundle) => bundle.id === bundleId)
     : undefined;
-  const onlyCartLine = hydrated && lines.length === 1 ? lines[0] : undefined;
+  // One-bundle rule: the cart holds at most one line.
+  const cartLine = hydrated && lines.length > 0 ? lines[0] : undefined;
   const selected =
     selectedFromUrl ??
-    (onlyCartLine ? bundles.find((bundle) => bundle.id === onlyCartLine.bundleId) : undefined);
+    (cartLine ? bundles.find((bundle) => bundle.id === cartLine.bundleId) : undefined);
   const network = selected ? getNetworkById(selected.networkId) : undefined;
 
   const parsed = normaliseGhanaPhone(phone);
@@ -86,7 +100,6 @@ export function CheckoutForm({
 
   const requestedMissing = !!bundleId && !selectedFromUrl;
   const waitingForCart = !hydrated && !bundleId;
-  const cartHasMany = hydrated && !bundleId && lines.length > 1;
   const nothingToBuy = hydrated && !bundleId && lines.length === 0;
 
   async function onContinue(event: React.FormEvent<HTMLFormElement>) {
@@ -148,6 +161,10 @@ export function CheckoutForm({
         // Private mode: the handoff still works, we just cannot remember the details.
       }
 
+      // Recent recipients are device-local convenience, independent of the
+      // "remember" prefill choice. Never uploaded by blink.
+      setRecents(saveRecipient(national, email.trim()));
+
       window.location.assign((payload as { authorizationUrl: string }).authorizationUrl);
     } catch {
       setError("Could not reach the payment page. Check your connection and try again.");
@@ -203,39 +220,6 @@ export function CheckoutForm({
         <Button asChild className="mt-4 h-11 rounded-full px-5">
           <Link href="/#bundles">Pick a bundle</Link>
         </Button>
-      </div>
-    );
-  }
-
-  if (cartHasMany) {
-    return (
-      <div className="mx-auto max-w-lg space-y-4">
-        <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-          <h2 className="text-base font-semibold">Pick one bundle to pay for</h2>
-          <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-            Jehucal checkout takes one bundle per payment. Start with one below; the rest stay in
-            your cart.
-          </p>
-          <ul className="mt-4 divide-y divide-border">
-            {lines.map((line) => (
-              <li key={line.bundleId} className="flex items-center justify-between gap-3 py-3">
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-medium">{line.nameSnapshot}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {formatGhs(line.pricePesewasSnapshot)} each
-                  </p>
-                </div>
-                <Link
-                  href={`/checkout?bundle=${encodeURIComponent(line.bundleId)}`}
-                  className="inline-flex min-h-11 shrink-0 items-center gap-1 rounded-full border border-border px-4 text-sm font-medium transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  Buy this
-                  <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
       </div>
     );
   }
@@ -302,6 +286,57 @@ export function CheckoutForm({
         </p>
 
         <div className="mt-4 space-y-4">
+          {recents.length > 0 ? (
+            <div className="rounded-2xl border border-border bg-muted/40 p-3.5">
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-[11px] font-bold uppercase tracking-[.12em] text-muted-foreground">
+                  Recent recipients
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    clearRecipients();
+                    setRecents([]);
+                  }}
+                  className="inline-flex min-h-8 items-center rounded-full px-2 text-xs font-semibold text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  Clear
+                </button>
+              </div>
+              <ul className="mt-2 flex flex-wrap gap-2">
+                {recents.map((r) => (
+                  <li key={r.phone}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPhone(r.phone);
+                        if (r.email) setEmail(r.email);
+                        setTouched(false);
+                        setEmailTouched(false);
+                      }}
+                      className="press flex min-h-10 items-center gap-2 rounded-full border border-border bg-background px-3.5 text-sm font-semibold transition-colors hover:border-ink/40 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    >
+                      <span
+                        aria-hidden="true"
+                        className="h-2 w-2 rounded-full"
+                        style={{
+                          backgroundColor:
+                            r.network !== "unknown"
+                              ? getNetworkById(r.network)?.brandColor
+                              : "#9ca3af",
+                        }}
+                      />
+                      {formatNational(r.phone)}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-2 text-[11px] text-muted-foreground">
+                Saved on this device only — tap to fill.
+              </p>
+            </div>
+          ) : null}
+
           <div className="space-y-2">
             <Label htmlFor="recipient" className="text-base sm:text-sm">
               Recipient phone number
@@ -323,6 +358,16 @@ export function CheckoutForm({
             <p id="recipient-help" className="text-xs text-muted-foreground">
               A Ghanaian number, with or without +233.
             </p>
+            {!phoneError && parsed.ok && hint !== "unknown" ? (
+              <p className="flex items-center gap-1.5 text-xs font-bold text-ink/70">
+                <span
+                  aria-hidden="true"
+                  className="h-2 w-2 rounded-full"
+                  style={{ backgroundColor: getNetworkById(hint)?.brandColor }}
+                />
+                {NETWORK_LABEL[hint]} number detected
+              </p>
+            ) : null}
             {phoneError ? (
               <p role="alert" className="text-xs font-medium text-destructive">
                 {phoneError}

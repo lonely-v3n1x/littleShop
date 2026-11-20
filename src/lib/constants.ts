@@ -9,6 +9,10 @@ export const CART_STORAGE_KEY = "littleshop.cart.v1";
 export const RECIPIENT_STORAGE_KEY = "littleshop.recipient";
 export const RECIPIENT_EMAIL_STORAGE_KEY = "littleshop.recipient.email";
 
+/** Recent recipients list (device-local only, never sent anywhere by blink). */
+export const RECIPIENTS_STORAGE_KEY = "littleshop.recipients.v1";
+export const MAX_RECENT_RECIPIENTS = 5;
+
 /**
  * Jehucal is the merchant of record and the data agent. blink never charges
  * a card or a wallet: it creates the order on the owner's storefront through

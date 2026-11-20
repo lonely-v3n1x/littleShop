@@ -18,16 +18,22 @@ import { BundleGrid } from "@/components/store/bundle-grid";
  * so the shopper can reach checkout without scrolling back to the header.
  */
 export function Storefront({ bundles }: { bundles: DataBundle[] }) {
-  const { addItem, count, subtotal, hydrated } = useCart();
+  const { addItem, lines, count, subtotal, hydrated } = useCart();
   const { toast } = useToast();
   const [addedIds, setAddedIds] = useState<Record<string, boolean>>({});
   const [announcement, setAnnouncement] = useState("");
 
   function handleAdd(bundle: DataBundle) {
+    // One-bundle rule: a different bundle auto-replaces the current line.
+    const prior = lines[0];
+    const replaces = !!prior && prior.bundleId !== bundle.id;
     addItem(bundle);
-    setAddedIds((prev) => ({ ...prev, [bundle.id]: true }));
-    setAnnouncement(`${bundle.name} added to cart`);
-    toast(`${bundle.name} added to your bag`);
+    setAddedIds({ [bundle.id]: true });
+    const message = replaces
+      ? `${bundle.name} replaced ${prior.nameSnapshot} — one bundle per payment`
+      : `${bundle.name} added to your bag`;
+    setAnnouncement(message);
+    toast(message);
   }
 
   const showCartBar = hydrated && count > 0;

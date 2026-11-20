@@ -2,46 +2,33 @@
 
 import * as React from "react";
 import type { CartLine, DataBundle } from "@/types";
-import { CART_STORAGE_KEY, MAX_QTY_PER_LINE } from "@/lib/constants";
+import { CART_STORAGE_KEY } from "@/lib/constants";
+import {
+  addBundle,
+  cartCount,
+  cartSubtotal,
+  parseStoredCart,
+  removeLine,
+  setQuantity,
+} from "@/lib/cart";
 
 /**
- * Frozen Core §0.7.4: never touch localStorage/window during render or module scope.
- * These two helpers are only ever called from inside an effect or an event handler.
+ * Frozen Core §0.7.4: never touch localStorage/window during render or module
+ * scope. Storage helpers run only inside an effect or an event handler.
  *
  * The cart stores snapshots, not catalogue lookups: a price change on the
- * storefront mid-session cannot silently move a customer's total. Checkout is
- * one Jehucal package per payment, so quantity is a planning number only.
+ * storefront mid-session cannot silently move a customer's total.
+ *
+ * ONE-BUNDLE RULE: Jehucal checkout takes a single agentPackageId per payment,
+ * so the cart holds at most one line. All the rule's logic lives in lib/cart.ts
+ * (pure, unit-tested); adding a different bundle auto-replaces the current one.
+ * Quantity is a planning number only and never multiplies an order.
  */
 function readFromStorage(): CartLine[] {
   try {
     const raw = window.localStorage.getItem(CART_STORAGE_KEY);
     if (!raw) return [];
-    const parsed: unknown = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return parsed.flatMap((entry): CartLine[] => {
-      if (!entry || typeof entry !== "object") return [];
-      const line = entry as Partial<CartLine>;
-      if (
-        typeof line.bundleId !== "string" ||
-        typeof line.quantity !== "number" ||
-        typeof line.nameSnapshot !== "string" ||
-        typeof line.pricePesewasSnapshot !== "number"
-      ) {
-        return [];
-      }
-      return [
-        {
-          bundleId: line.bundleId,
-          quantity: Math.max(1, Math.min(Math.floor(line.quantity), MAX_QTY_PER_LINE)),
-          nameSnapshot: line.nameSnapshot,
-          pricePesewasSnapshot: line.pricePesewasSnapshot,
-          dataMbSnapshot:
-            typeof line.dataMbSnapshot === "number" && Number.isFinite(line.dataMbSnapshot)
-              ? line.dataMbSnapshot
-              : 0,
-        },
-      ];
-    });
+    return parseStoredCart(JSON.parse(raw));
   } catch {
     return [];
   }
@@ -84,53 +71,22 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [lines, hydrated]);
 
   const addItem = React.useCallback((bundle: DataBundle) => {
-    if (!Number.isInteger(bundle.pricePesewas) || bundle.pricePesewas <= 0) return;
-    setLines((prev) => {
-      const existing = prev.find((line) => line.bundleId === bundle.id);
-      if (!existing) {
-        return [
-          ...prev,
-          {
-            bundleId: bundle.id,
-            quantity: 1,
-            nameSnapshot: bundle.name,
-            pricePesewasSnapshot: bundle.pricePesewas,
-            dataMbSnapshot: bundle.dataMb,
-          },
-        ];
-      }
-      return prev.map((line) =>
-        line.bundleId === bundle.id
-          ? { ...line, quantity: Math.min(line.quantity + 1, MAX_QTY_PER_LINE) }
-          : line,
-      );
-    });
+    setLines((prev) => addBundle(prev, bundle).lines);
   }, []);
 
   const removeItem = React.useCallback((bundleId: string) => {
-    setLines((prev) => prev.filter((line) => line.bundleId !== bundleId));
+    setLines((prev) => removeLine(prev, bundleId));
   }, []);
 
   const updateQuantity = React.useCallback((bundleId: string, quantity: number) => {
-    setLines((prev) =>
-      quantity <= 0
-        ? prev.filter((line) => line.bundleId !== bundleId)
-        : prev.map((line) =>
-            line.bundleId === bundleId
-              ? { ...line, quantity: Math.min(Math.floor(quantity), MAX_QTY_PER_LINE) }
-              : line,
-          ),
-    );
+    setLines((prev) => setQuantity(prev, bundleId, quantity));
   }, []);
 
   const clearCart = React.useCallback(() => setLines([]), []);
 
-  // Money always comes from the snapshots taken at add-time (Frozen Core section 0.2).
-  const count = lines.reduce((sum, line) => sum + line.quantity, 0);
-  const subtotal = lines.reduce(
-    (sum, line) => sum + line.pricePesewasSnapshot * line.quantity,
-    0,
-  );
+  // Money always comes from the snapshots taken at add-time (Frozen Core §0.2).
+  const count = cartCount(lines);
+  const subtotal = cartSubtotal(lines);
 
   const value = React.useMemo<CartContextValue>(
     () => ({

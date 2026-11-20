@@ -1,29 +1,34 @@
 "use client";
 
-import { ShoppingBag } from "lucide-react";
+import { Check, ShoppingBag } from "lucide-react";
 import type { DataBundle, Network } from "@/types";
 import { formatDataMb, expiryLabel } from "@/lib/data-size";
 import { formatGhs } from "@/lib/money";
+import { Reveal } from "@/components/motion/reveal";
 
-/** FigFeva-inspired data card. onAdd fires our add-to-cart; the real money
- * path stays with /checkout (Jehucal). */
+/**
+ * Figma product card: network-coloured art slab with one bold numeral, price
+ * below, white Add pill that flips to volt. onAdd fires our add-to-cart; the
+ * real money path stays with /checkout (Jehucal).
+ */
 export function BundleCard({
   bundle,
   network,
   onAdd,
   added = false,
+  delay = 0,
 }: {
   bundle: DataBundle;
   network?: Network;
   onAdd: (bundle: DataBundle) => void;
   added?: boolean;
+  delay?: number;
 }) {
   const size = formatDataMb(bundle.dataMb);
-
   return (
-    <li className="product-card group">
+    <Reveal as="li" delay={delay} className="product-card group">
       <div
-        className="relative h-48 overflow-hidden rounded-[20px] p-6"
+        className="relative h-48 overflow-hidden rounded-[20px] p-6 transition-transform duration-300 ease-spring group-hover:scale-[1.015]"
         style={{ backgroundColor: network?.brandColor, color: network?.textOnColor }}
       >
         {bundle.popular ? (
@@ -33,7 +38,7 @@ export function BundleCard({
         ) : null}
         <p className="text-xl font-extrabold">{network?.name ?? "Network"}</p>
         <div className="absolute bottom-5 left-6">
-          <p className="text-5xl font-extrabold tracking-[-.06em]">{formatDataMb(bundle.dataMb)}</p>
+          <p className="text-5xl font-extrabold tracking-[-.06em]">{size}</p>
           {bundle.expiryType ? (
             <p className="mt-1 text-sm font-semibold opacity-70">
               {expiryLabel(bundle.expiryType)} validity
@@ -45,7 +50,7 @@ export function BundleCard({
       <div className="flex items-center justify-between px-1 pb-1 pt-5">
         <div>
           <p className="text-sm text-white/45">Starting at</p>
-          <p className="mt-1 text-xl font-extrabold">{formatGhs(bundle.pricePesewas)}</p>
+          <p className="mt-1 text-xl font-extrabold text-white">{formatGhs(bundle.pricePesewas)}</p>
         </div>
         <button
           type="button"
@@ -54,10 +59,14 @@ export function BundleCard({
           aria-pressed={added}
           className="add-button"
         >
-          <ShoppingBag className="h-5 w-5" aria-hidden="true" />
-          <span>Add</span>
+          {added ? (
+            <Check className="h-5 w-5" aria-hidden="true" />
+          ) : (
+            <ShoppingBag className="h-5 w-5" aria-hidden="true" />
+          )}
+          <span>{added ? "Added" : "Add"}</span>
         </button>
       </div>
-    </li>
+    </Reveal>
   );
 }

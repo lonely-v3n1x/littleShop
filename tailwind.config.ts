@@ -50,11 +50,25 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // blink brand palette (Figma design inspo)
+        ink: "#181814",
+        cream: "#f6f4ef",
+        volt: "#d7ff46",
+        grape: "#6d3bf5",
+        coral: "#ff654b",
+      },
+      fontFamily: {
+        sans: ["var(--font-dm-sans)", "Inter", "system-ui", "sans-serif"],
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      transitionTimingFunction: {
+        // Apple-style spring easing for sheets, reveals and big moves.
+        spring: "cubic-bezier(0.32, 0.72, 0, 1)",
+        "out-expo": "cubic-bezier(0.16, 1, 0.3, 1)",
       },
       keyframes: {
         "accordion-down": {
@@ -65,10 +79,31 @@ const config: Config = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        "pop-in": {
+          "0%": { opacity: "0", transform: "scale(0.6)" },
+          "60%": { opacity: "1", transform: "scale(1.08)" },
+          "100%": { opacity: "1", transform: "scale(1)" },
+        },
+        "rise-in": {
+          "0%": { opacity: "0", transform: "translateY(28px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        "toast-in": {
+          "0%": { opacity: "0", transform: "translate(-50%, 16px) scale(0.96)" },
+          "100%": { opacity: "1", transform: "translate(-50%, 0) scale(1)" },
+        },
+        twinkle: {
+          "0%, 100%": { opacity: "1", transform: "scale(1) rotate(0deg)" },
+          "50%": { opacity: "0.55", transform: "scale(0.82) rotate(12deg)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "pop-in": "pop-in 0.35s cubic-bezier(0.32, 0.72, 0, 1) both",
+        "rise-in": "rise-in 0.7s cubic-bezier(0.32, 0.72, 0, 1) both",
+        "toast-in": "toast-in 0.4s cubic-bezier(0.32, 0.72, 0, 1) both",
+        twinkle: "twinkle 3.2s ease-in-out infinite",
       },
     },
   },

@@ -2,6 +2,7 @@ import { Hero } from "@/components/store/hero";
 import { ServiceRail } from "@/components/store/service-rail";
 import { Storefront } from "@/components/store/storefront";
 import { HowItWorks } from "@/components/store/how-it-works";
+import { GiftTeaser } from "@/components/store/gift-teaser";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { JEHUCAL_STORE_URL } from "@/lib/constants";
 import { fetchCatalogue } from "@/features/data/catalogue";
@@ -50,6 +51,7 @@ export default async function Home() {
         <Storefront bundles={bundles} />
       )}
       <HowItWorks />
+      <GiftTeaser />
     </>
   );
 }

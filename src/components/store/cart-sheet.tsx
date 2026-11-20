@@ -138,10 +138,10 @@ export function CartSheet({
               ))}
             </ul>
 
-            <SheetFooter className="mt-0 gap-3 border-t border-border bg-background/95 px-5 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+            <SheetFooter className="mt-0 flex flex-col gap-3 border-t border-border bg-background/95 px-5 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
               <div className="flex items-baseline justify-between">
                 <span className="text-sm text-muted-foreground">Subtotal</span>
-                <span className="text-xl font-bold tabular-nums">{formatGhs(subtotal)}</span>
+                <span className="text-xl font-extrabold tabular-nums">{formatGhs(subtotal)}</span>
               </div>
               <Separator />
 

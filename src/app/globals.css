@@ -1,53 +1,55 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* blink design system — Figma inspo: cream paper, ink type, volt lime accent,
+   grape purple secondary. Tokens feed every shadcn primitive so the whole app
+   (shop, cart, checkout, return page) shares one language. */
+
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222 47% 11%;
+    --background: 44 33% 96%; /* cream #f6f4ef */
+    --foreground: 60 7% 9%; /* ink #181814 */
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 60 7% 9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    --primary: 152 65% 30%;
+    --popover-foreground: 60 7% 9%;
+    --primary: 60 7% 9%; /* ink CTAs */
     --primary-foreground: 0 0% 100%;
-    --secondary: 48 96% 50%;
-    --secondary-foreground: 222 47% 11%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
-    --accent: 152 60% 95%;
-    --accent-foreground: 152 65% 24%;
-    --destructive: 0 84% 60%;
+    --secondary: 75 100% 64%; /* volt #d7ff46 */
+    --secondary-foreground: 60 7% 9%;
+    --muted: 44 22% 91%;
+    --muted-foreground: 60 4% 38%;
+    --accent: 44 26% 90%;
+    --accent-foreground: 60 7% 9%;
+    --destructive: 9 100% 64%; /* coral #ff654b */
     --destructive-foreground: 0 0% 100%;
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 152 65% 30%;
-    --radius: 0.75rem;
+    --border: 44 16% 85%;
+    --input: 44 16% 82%;
+    --ring: 262 89% 60%; /* grape #6d3bf5 */
+    --radius: 1.25rem;
   }
 
   .dark {
-    --background: 222 47% 8%;
-    --foreground: 210 40% 98%;
-    --card: 222 40% 11%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222 40% 11%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 152 60% 45%;
-    --primary-foreground: 222 47% 8%;
-    --secondary: 48 96% 50%;
-    --secondary-foreground: 222 47% 8%;
-    --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 65%;
-    --accent: 152 40% 20%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62% 45%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217 33% 20%;
-    --input: 217 33% 20%;
-    --ring: 152 60% 45%;
+    --background: 60 7% 7%;
+    --foreground: 44 33% 96%;
+    --card: 60 6% 11%;
+    --card-foreground: 44 33% 96%;
+    --popover: 60 6% 11%;
+    --popover-foreground: 44 33% 96%;
+    --primary: 75 100% 64%;
+    --primary-foreground: 60 7% 9%;
+    --secondary: 75 100% 64%;
+    --secondary-foreground: 60 7% 9%;
+    --muted: 60 5% 16%;
+    --muted-foreground: 44 10% 65%;
+    --accent: 60 5% 18%;
+    --accent-foreground: 44 33% 96%;
+    --destructive: 9 90% 58%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 60 5% 20%;
+    --input: 60 5% 22%;
+    --ring: 75 100% 64%;
   }
 }
 
@@ -57,77 +59,113 @@
   }
   html {
     scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: "Inter", sans-serif;
+    font-family: var(--font-dm-sans), "Inter", system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
   }
   button {
     cursor: pointer;
+    touch-action: manipulation;
+  }
+  /* Inputs at >=16px stop iOS Safari from zooming on focus. */
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+  ::selection {
+    background: #d7ff46;
+    color: #181814;
   }
 }
 
-/* Figma-inspired component classes (see the design inspo: cream/lime/purple,
-   extrabold type, pill buttons). Restored for Tailwind v3 — the v4-style
-   `@import "tailwindcss"` rewrite broke the build and dropped the tokens. */
 @layer components {
+  /* ---- Figma component classes ---- */
   .icon-button {
-    @apply grid h-10 w-10 place-items-center rounded-full transition-colors hover:bg-black/5;
+    @apply grid h-11 w-11 place-items-center rounded-full text-ink/70 transition-all duration-200 hover:bg-ink/5 hover:text-ink active:scale-95;
   }
 
   .nav-link {
-    @apply relative py-2 text-black/65 transition-colors hover:text-black;
+    @apply relative py-2 font-semibold text-ink/60 transition-colors duration-200 hover:text-ink;
   }
-
   .nav-link::after {
     content: "";
-    @apply absolute bottom-0 left-0 h-px w-0 bg-black transition-all duration-300;
+    @apply absolute bottom-0 left-0 h-[2px] w-0 rounded-full bg-ink transition-all duration-300 ease-spring;
   }
-
   .nav-link:hover::after {
     @apply w-full;
   }
 
   .primary-button {
-    @apply flex h-14 items-center justify-center gap-3 rounded-full bg-[#181814] px-7 font-extrabold text-white transition-all hover:-translate-y-0.5 hover:bg-[#6d3bf5];
+    @apply flex h-14 items-center justify-center gap-3 rounded-full bg-ink px-7 font-extrabold text-white transition-all duration-300 ease-spring hover:-translate-y-0.5 hover:bg-grape hover:shadow-[0_14px_30px_rgba(109,59,245,0.35)] active:translate-y-0 active:scale-[0.98];
   }
 
   .secondary-button {
-    @apply flex h-14 items-center justify-center rounded-full border border-black/20 px-7 font-extrabold transition-all hover:border-black hover:bg-white;
+    @apply flex h-14 items-center justify-center gap-2 rounded-full border border-ink/20 bg-white/50 px-7 font-extrabold text-ink transition-all duration-300 ease-spring hover:-translate-y-0.5 hover:border-ink hover:bg-white active:translate-y-0 active:scale-[0.98];
   }
 
   .tab-button {
-    @apply rounded-full px-5 py-3 text-sm font-bold text-white/50 transition-all;
+    @apply rounded-full px-5 py-2.5 text-sm font-bold text-white/50 transition-all duration-300 ease-spring;
   }
-
   .tab-button.active {
-    @apply bg-[#d7ff46] text-black;
+    @apply bg-volt text-ink shadow-[0_6px_18px_rgba(215,255,70,0.25)];
   }
 
   .product-card {
-    @apply rounded-[28px] border border-white/10 bg-white/[.055] p-3 transition-all duration-300 hover:-translate-y-1 hover:bg-white/[.09];
+    @apply rounded-[28px] border border-white/10 bg-white/[.055] p-3 transition-all duration-300 ease-spring hover:-translate-y-1.5 hover:bg-white/[.09] hover:shadow-[0_24px_50px_rgba(0,0,0,0.35)];
   }
 
   .add-button {
-    @apply flex h-10 items-center gap-2 rounded-full bg-white px-4 text-sm font-extrabold text-black transition-colors hover:bg-[#d7ff46];
+    @apply flex h-11 items-center gap-2 rounded-full bg-white px-4 text-sm font-extrabold text-ink transition-all duration-200 ease-spring hover:bg-volt active:scale-95;
+  }
+
+  /* ---- Motion: scroll reveals (Apple-style rise + settle) ----
+     Progressive enhancement: elements are visible by default; the Reveal
+     component adds .reveal on mount, then .is-visible when in view. With JS
+     off or reduced motion, content is never hidden. */
+  .reveal {
+    opacity: 0;
+    transform: translateY(28px) scale(0.985);
+    transition:
+      opacity 0.7s cubic-bezier(0.32, 0.72, 0, 1),
+      transform 0.7s cubic-bezier(0.32, 0.72, 0, 1);
+    transition-delay: var(--reveal-delay, 0ms);
+    will-change: opacity, transform;
+  }
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  .press {
+    @apply transition-transform duration-150 ease-spring active:scale-[0.97];
   }
 }
 
+/* ---- Ambient hero motion ---- */
 @keyframes drift {
-  0%, 100% { transform: translateY(0) rotate(5deg); }
-  50% { transform: translateY(-10px) rotate(5deg); }
+  0%,
+  100% {
+    transform: translateY(0) rotate(5deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(4deg);
+  }
 }
 
 @keyframes floatChip {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
-}
-
-@keyframes heroPulse {
-  0% { box-shadow: 0 0 0 0 rgba(0, 0, 0, .18); }
-  70% { box-shadow: 0 0 0 8px rgba(0, 0, 0, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-9px);
+  }
 }
 
 .gift-visual {
@@ -139,10 +177,16 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: .01ms !important;
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: .01ms !important;
+    transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
   }
 }

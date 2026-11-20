@@ -75,7 +75,7 @@ export function CartSheet({
           <SheetDescription>
             {lines.length === 0
               ? "Your cart is empty."
-              : "Saved here while you shop. Payment is handled by Paystack for Jehucal."}
+              : "One bundle per payment — adding another replaces this one."}
           </SheetDescription>
         </SheetHeader>
 
@@ -151,15 +151,11 @@ export function CartSheet({
                     Continue to checkout
                   </Link>
                 </Button>
-              ) : (
-                <Button type="button" disabled className="h-12 w-full rounded-full text-base">
-                  Choose one bundle above to pay
-                </Button>
-              )}
+              ) : null}
 
               <p className="text-center text-[11px] leading-snug text-muted-foreground">
-                Jehucal checkout takes one bundle per payment. Paystack handles the payment;
-                blink never sees your MoMo PIN.
+                One bundle per payment. Paystack handles the payment; blink never sees
+                your MoMo PIN.
               </p>
 
               <div className="flex items-center justify-between">

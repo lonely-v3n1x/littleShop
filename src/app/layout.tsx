@@ -3,6 +3,7 @@ import { DM_Sans } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/providers/cart-provider";
 import { ToastProvider } from "@/components/motion/toast";
+import { RegisterSW } from "@/components/pwa/register-sw";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 
@@ -31,6 +32,16 @@ export const metadata: Metadata = {
     locale: "en_GH",
   },
   alternates: { canonical: SITE_URL + "/" },
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    title: "blink",
+    statusBarStyle: "default",
+  },
+  icons: {
+    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
   twitter: {
     card: "summary_large_image",
     title: "blink — Mobile data for Ghana",
@@ -54,6 +65,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <Header />
             <main className="flex-1">{children}</main>
             <Footer />
+            <RegisterSW />
           </ToastProvider>
         </CartProvider>
       </body>

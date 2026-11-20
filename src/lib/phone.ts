@@ -24,7 +24,9 @@ export function normaliseGhanaPhone(raw: string): PhoneResult {
   else if (/^0\d{9}$/.test(digits)) local = digits;
   else local = `0${digits}`;
 
-  if (!/^0\d{9}$/.test(local)) {
+  // Second digit must be non-zero: a 9-digit typo must not gain a second
+  // leading zero and pass as "00…". Ghana national numbers are 0[235]…
+  if (!/^0[1-9]\d{8}$/.test(local)) {
     return { ok: false, error: "Enter a 10-digit Ghana number, e.g. 054 123 4567." };
   }
   return { ok: true, e164: `+233${local.slice(1)}` };

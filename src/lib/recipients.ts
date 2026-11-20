@@ -29,7 +29,7 @@ export function parseRecipients(raw: unknown): RecentRecipient[] {
   for (const entry of raw) {
     if (!entry || typeof entry !== "object") continue;
     const r = entry as Partial<RecentRecipient>;
-    if (typeof r.phone !== "string" || !/^0\d{9}$/.test(r.phone)) continue;
+    if (typeof r.phone !== "string" || !/^0[1-9]\d{8}$/.test(r.phone)) continue;
     if (seen.has(r.phone)) continue;
     seen.add(r.phone);
     out.push({

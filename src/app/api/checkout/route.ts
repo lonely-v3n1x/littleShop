@@ -107,7 +107,7 @@ export async function POST(request: Request) {
       { status: 400 },
     );
   }
-  if (!/^0\d{9}$/.test(phone)) {
+  if (!/^0[1-9]\d{8}$/.test(phone)) {
     return NextResponse.json(
       { error: "Enter a 10-digit Ghana number, e.g. 054 123 4567." },
       { status: 400 },

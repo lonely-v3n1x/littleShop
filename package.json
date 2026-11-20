@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "test": "node scripts/test-phone.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "deploy": "npx @opennextjs/cloudflare build && wrangler deploy",
     "cf:build": "npx @opennextjs/cloudflare build",
     "cf:dev": "wrangler dev"
@@ -37,6 +38,7 @@
     "tailwindcss": "^3.4.15",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "^5.7.2",
+    "vitest": "^3.2.7",
     "wrangler": "^4.148.0"
   }
 }

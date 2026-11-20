@@ -61,7 +61,7 @@ npm run dev          # dev server
 npm run build        # production build (tsc + build)
 npm run lint         # ESLint (flat config, next/core-web-vitals + next/typescript)
 npx tsc --noEmit     # type check
-npm run test         # phone normaliser unit tests (scripts/test-phone.mjs)
+npm run test         # Vitest unit tests (phone, money, cart, recipients)
 npx @opennextjs/cloudflare build   # Cloudflare/OpenNext bundle for wrangler deploy
 npm run deploy       # cf:build + wrangler deploy
 ```

@@ -104,9 +104,8 @@ They were never paid. Delete them (or ignore them) before a launch.
    page; then verify on the Jehucal dashboard that the sale is attributed to `littleFlower`.
 4. **Auth is deferred.** `@auth0/nextjs-auth0` was uninstalled during cleanup (no code imported
    it); revisit when a tenant/credentials exist.
-5. Unit tests for the phone normalizer were never added — the plan has phone cases in Phase D
-   acceptance. Add a small `__tests__` dir if the team wants anything more than "it passed in the
-   browser".
+5. Unit tests now live in Vitest (`src/lib/*.test.ts`: phone, money, cart,
+   recipients) and run in CI on every push/PR. Add cases there for new logic.
 6. **Live-upstream flakes to watch for:** if Jehucal's API or the catalogue ever flakes, the home page
    renders an "The live catalogue is not answering" alert with a link to the storefront (verified
    behavior); `/checkout` refuses to start payment when the catalogue can't be read.
